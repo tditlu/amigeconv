@@ -1,6 +1,8 @@
 # Amigeconv
 `Ami`ga Ima`ge` `Conv`erter
 
+A graphics converter for Amiga bitplanes & chunky format.
+
 Developed by Daniel Gerdgren and distributed under the terms of the [MIT license](./LICENSE).
 
 
@@ -13,6 +15,7 @@ In a Unix-like environment simply `make` the binary.
 	amigeconv <options> <input> <output>
 
 Available options are:
+
 	-i, --interleaved                  Data in output file is stored
 	                                   in interleaved format.
 
