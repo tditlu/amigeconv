@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <math.h>
 
 #include "image.h"
 #include "lodepng.h"
 
-unsigned image_load(image_t *image, const char *infile) {
+image_error_t image_load(image_t *const image, const char *infile) {
+	image_error_t error = IMAGE_ERROR_NO_ERROR;
+
 	unsigned char *png = NULL;
 	size_t png_size;
 	LodePNGState png_state;
@@ -17,84 +18,85 @@ unsigned image_load(image_t *image, const char *infile) {
 	lodepng_state_init(&png_state);
 	png_state.decoder.color_convert = 0;
 
-	unsigned error;
-	error = lodepng_load_file(&png, &png_size, infile);
-	if (error) {
-		printf("Error: Could not open input file \"%s\".\n", infile);
-	} else {
-		error = lodepng_decode(&png_image, &width, &height, &png_state, png, png_size);
-		if (error) {
-			printf("Error: Could not decode input file \"%s\".\n", infile);
-		} else {
-			unsigned colortype = png_state.info_png.color.colortype;
-			if (colortype != LCT_PALETTE && colortype != LCT_GREY) {
-				error = 1001;
-				printf("Error: Could not decode input file \"%s\", invalid color type.\n", infile);
-			} else {
-				unsigned bitdepth = png_state.info_png.color.bitdepth;
-				if (!(bitdepth == 1 || bitdepth == 2 || bitdepth == 4 || bitdepth == 8)) {
-						error = 1002;
-						printf("Error: Could not decode input file \"%s\", invalid bit depth.\n", infile);
-				} else {
-					unsigned size = width * height;
-					unsigned char *data = (unsigned char *)malloc(size);
-					if (!data) {
-						error = 1003;
-						printf("Error: Could not decode input file \"%s\", out of memory.\n", infile);
-					} else {
-						memset(data, 0, size);
+	if (lodepng_load_file(&png, &png_size, infile)) {
+		error = IMAGE_ERROR_OPEN;
+		goto error;
+	}
 
-						unsigned char *palette = (unsigned char *)malloc(256 * 4);
-						if (!palette) {
-							error = 1004;
-							printf("Error: Could not decode input file \"%s\", out of memory.\n", infile);
-						} else {
-							memset(palette, 0, 256 * 4);
+	if (lodepng_decode(&png_image, &width, &height, &png_state, png, png_size)) {
+		error = IMAGE_ERROR_DECODE;
+		goto error;
+	}
 
-							unsigned bitdepth = png_state.info_png.color.bitdepth;
-							unsigned p = 1, q = 0, r = 0, a = 256, s = 0; // bitdepth == 8
-							if (bitdepth == 4) {
-								p = 2; q = 4; r = 4; a = 16; s = 1;
-							} else if (bitdepth == 2) {
-								p = 4; q = 6; r = 2; a = 4; s = 2;
-							} else if (bitdepth == 1) {
-								p = 8; q = 7; r = 1; a = 2; s = 3;
-							}
+	unsigned int colortype = png_state.info_png.color.colortype;
+	if (colortype != LCT_PALETTE && colortype != LCT_GREY) {
+		error = IMAGE_ERROR_COLOR_TYPE;
+		goto error;
+	}
 
-							for (unsigned y = 0; y < height; y++) {
-								for (unsigned x = 0; x < width >> s; x++) {
-									unsigned c = png_image[(y * (width >> s)) + x];
-									for (unsigned i = 0, j = q; i < p; i++, j -= r) {
-										data[(y * width) + (x << s) + i] = (c >> j) & (a - 1);
-									}
-								}
-							}
+	unsigned int bitdepth = png_state.info_png.color.bitdepth;
+	if (!(bitdepth == 1 || bitdepth == 2 || bitdepth == 4 || bitdepth == 8)) {
+		error = IMAGE_ERROR_BIT_DEPTH;
+		goto error;
+	}
 
-							unsigned depth = 0;
-							unsigned i = png_state.info_png.color.palettesize;
-							while (i >>= 1) { depth++; }
+	buffer_t *bitmap = buffer_create(width * height);
+	if (!bitmap) {
+		error = IMAGE_ERROR_INIT_BITMAP;
+		goto error;
+	}
+	image->bitmap = bitmap;
 
-							unsigned char *palette = (unsigned char *)malloc(256 * 4);
-							unsigned palette_size = png_state.info_png.color.palettesize;
-							for (unsigned i = 0; i < palette_size; i++) {
-								for (unsigned j = 0; j < 4; j++) {
-									palette[(i * 4) + j] = png_state.info_png.color.palette[(i * 4) + j];
-								}
-							}
+	buffer_t *palette = buffer_create(256 * 4);
+	if (!palette) {
+		error = IMAGE_ERROR_INIT_PALETTE;
+		goto error;
+	}
+	image->palette = palette;
 
-							image->bitmap = data;
-							image->bitmap_width = width;
-							image->bitmap_height = height;
-							image->bitmap_depth = depth;
+	unsigned int p = 1, q = 0, r = 0, a = 256, s = 0; // bitdepth == 8
+	if (bitdepth == 4) {
+		p = 2; q = 4; r = 4; a = 16; s = 1;
+	} else if (bitdepth == 2) {
+		p = 4; q = 6; r = 2; a = 4; s = 2;
+	} else if (bitdepth == 1) {
+		p = 8; q = 7; r = 1; a = 2; s = 3;
+	}
 
-							image->palette = palette;
-							image->palette_size = palette_size;
-						}
-					}
-				}
+	for (unsigned int y = 0; y < height; y++) {
+		for (unsigned int x = 0; x < width >> s; x++) {
+			unsigned int c = png_image[(y * (width >> s)) + x];
+			for (unsigned int i = 0, j = q; i < p; i++, j -= r) {
+				buffer_set_byte(image->bitmap, (y * width) + (x << s) + i, (c >> j) & (a - 1));
 			}
 		}
 	}
+
+	unsigned int depth = 0;
+	unsigned int i = png_state.info_png.color.palettesize;
+	while (i >>= 1) { depth++; }
+
+	unsigned int palette_size = png_state.info_png.color.palettesize;
+	if (colortype == LCT_GREY) {
+		for (unsigned int i = 0; i < palette_size; i++) {
+			for (unsigned int j = 0; j < 3; j++) {
+				buffer_set_byte(image->palette, (i * 4) + j, (i / (palette_size - 1)) * 255);
+			}
+			buffer_set_byte(image->palette, (i * 4) + 3, 255);
+		}
+	} else {
+		for (unsigned int i = 0; i < palette_size; i++) {
+			for (unsigned int j = 0; j < 4; j++) {
+				buffer_set_byte(image->palette, (i * 4) + j, png_state.info_png.color.palette[(i * 4) + j]);
+			}
+		}
+	}
+
+	image->width = width;
+	image->height = height;
+	image->depth = depth;
+
+error:
 	free(png);
 	lodepng_state_cleanup(&png_state);
 	free(png_image);
@@ -102,10 +104,22 @@ unsigned image_load(image_t *image, const char *infile) {
 	return error;
 }
 
-void image_free(image_t *image) {
-	image->bitmap_width = image->bitmap_height = image->bitmap_depth = image->palette_size = 0;
-	if (image->bitmap != NULL) { free(image->bitmap); }
-	if (image->palette != NULL) { free(image->palette); }
-	image->bitmap = image->palette = NULL;
+void image_free(image_t *const image) {
+	image->width = image->height = image->depth = 0;
+	buffer_free(image->bitmap);
+	buffer_free(image->palette);
 }
 
+const char *image_error_text(image_error_t error) {
+	switch(error) {
+		case IMAGE_ERROR_NO_ERROR: return "No error";
+		case IMAGE_ERROR_OPEN: return "Unable to open input file";
+		case IMAGE_ERROR_DECODE: return "Unable to decode input file";
+		case IMAGE_ERROR_COLOR_TYPE: return "Invalid color type, only palette or grayscale supported";
+		case IMAGE_ERROR_BIT_DEPTH: return "Invalid bit depth, only 1, 2, 4 & 8 supported";
+		case IMAGE_ERROR_INIT_BITMAP: return "Couldn't allocate memory for bitmap";
+		case IMAGE_ERROR_INIT_PALETTE: return "Couldn't allocate memory for palette";
+	}
+
+	return "Unknown error";
+}

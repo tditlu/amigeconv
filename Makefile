@@ -7,18 +7,18 @@ SRCDIR = src
 OBJDIR = obj
 BINDIR = bin
 
-SOURCES  := $(wildcard $(SRCDIR)/*.c)
-INCLUDES  := $(wildcard $(SRCDIR)/*.h)
+SOURCES  := $(wildcard $(SRCDIR)/*.c) $(wildcard $(SRCDIR)/formats/*.c)
+INCLUDES := $(wildcard $(SRCDIR)/*.h) $(wildcard $(SRCDIR)/formats/*.h)
 OBJECTS  := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
 all: $(BINDIR)/$(TARGET)
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
-	@mkdir -p $(BINDIR)
+	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(OBJECTS) -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(INCLUDES)
-	@mkdir -p $(OBJDIR)
+	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean

@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <getopt.h>
-#include <math.h>
 
 #include "image.h"
-#include "lodepng.h"
+#include "buffer.h"
+
+#include "formats/chunky.h"
+#include "formats/bitplanes.h"
 
 typedef enum {
 	FORMAT_UNKNOWN = 0,
@@ -14,73 +17,30 @@ typedef enum {
 	FORMAT_SPRITES = 3
 } format_t;
 
-static bool write_data(
-	const char *outfile,
-	const unsigned char *data,
-	const unsigned size
-) {
-	FILE *f = fopen(outfile, "wb");
-	if (!f) { return false; }
-
-	fwrite(data, sizeof(unsigned char), size, f);
-	fclose(f);
-
-	return true;
-}
-
 static bool write_chunky(
 	const char *outfile,
-	const image_t *image
+	image_t *const image
 ) {
-	int size = image->bitmap_width * image->bitmap_height;
-	return write_data(outfile, image->bitmap, size);
+	buffer_t *buffer = chunky_convert(image);
+	if (!buffer) { return false; }
+
+	bool error = buffer_write(buffer, outfile);
+	buffer_free(buffer);
+
+	return error;
 }
 
 static bool write_bitplanes(
 	const char *outfile,
-	const image_t *image,
-	const unsigned depth,
+	image_t *const image,
+	const unsigned int depth,
 	const bool interleaved
 ) {
-	if (image->bitmap_width % 8 != 0) { return false; }
+	buffer_t *buffer = bitplanes_convert(image, depth, interleaved);
+	if (!buffer) { return false; }
 
-	int size = (image->bitmap_width >> 3) * image->bitmap_height * depth;
-
-	unsigned char *data = malloc(size);
-	if (!data) { return false; }
-	memset(data, 0, size);
-
-	int i = 0;
-	if (interleaved) {
-		for (int y = 0; y < image->bitmap_height; y++) {
-			for (int j = 0; j < depth; j++) {
-				for (int x = 0; x < image->bitmap_width; x += 8) {
-					unsigned char c = 0;
-					for (int k = 0; k < 8; k++) {
-						c += ((image->bitmap[(y * image->bitmap_width) + x + k] >> j) & 1) << ((8 - 1) - k);
-					}
-
-					data[i++] = c;
-				}
-			}
-		}
-	} else {
-		for (int j = 0; j < depth; j++) {
-			for (int y = 0; y < image->bitmap_height; y++) {
-				for (int x = 0; x < image->bitmap_width; x += 8) {
-					unsigned char c = 0;
-					for (int k = 0; k < 8; k++) {
-						c += ((image->bitmap[(y * image->bitmap_width) + x + k] >> j) & 1) << ((8 - 1) - k);
-					}
-
-					data[i++] = c;
-				}
-			}
-		}
-	}
-
-	bool error = write_data(outfile, data, size);
-	free(data);
+	bool error = buffer_write(buffer, outfile);
+	buffer_free(buffer);
 
 	return error;
 }
@@ -104,7 +64,7 @@ static void usage(int status) {
 
 int main(int argc, char *argv[]) {
 	bool interleaved = false;
-	signed depth = -1;
+	int depth = -1;
 	format_t format = FORMAT_UNKNOWN;
 
 	static struct option long_options[] = {
@@ -171,37 +131,41 @@ int main(int argc, char *argv[]) {
 	const char *outfile = argv[optind++];
 
 	image_t image;
-	unsigned error = image_load(&image, infile);
-	if (error) {
-		printf("Error: Could not load input file \"%s\".\n", infile);
-		image_free(&image);
-		exit(EXIT_FAILURE);
+	bool error = false;
+
+	image_error_t image_error = image_load(&image, infile);
+	if (image_error) {
+		error = true;
+		printf("Error: Could not load input file \"%s\". %s\n", infile, image_error_text(error));
+		goto error;
 	}
 
 	if (format == FORMAT_CHUNKY && !write_chunky(outfile, &image)) {
+		error = true;
 		printf("Error: Could not write output file \"%s\".\n", outfile);
-		image_free(&image);
-		exit(EXIT_FAILURE);
+		goto error;
 	}
-
-
 
 	if (format == FORMAT_BITPLANES) {
-		if (depth == -1) {
-			depth = image.bitmap_depth;
-		}
+		if (depth == -1) { depth = image.depth; }
+
 		if (depth < 1 || depth > 8) {
+			error = true;
 			printf("Error: Invalid depth specified.\n\n");
-			usage(EXIT_FAILURE);
+			goto error;
 		}
+
 		if (!write_bitplanes(outfile, &image, depth, interleaved)) {
+			error = true;
 			printf("Error: Could not write output file \"%s\".\n", outfile);
-			image_free(&image);
-			exit(EXIT_FAILURE);
+			goto error;
 		}
 	}
 
+error:
 	image_free(&image);
+	if (error) { exit(EXIT_FAILURE); }
+
 	return EXIT_SUCCESS;
 }
 
