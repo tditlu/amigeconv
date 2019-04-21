@@ -10,6 +10,7 @@ typedef struct {
 	unsigned int depth;
 
 	buffer_t *palette;
+	unsigned int colors;
 } image_t;
 
 typedef enum {

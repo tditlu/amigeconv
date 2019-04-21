@@ -9,12 +9,14 @@
 
 #include "formats/chunky.h"
 #include "formats/bitplanes.h"
+#include "formats/palette.h"
 
 typedef enum {
 	FORMAT_UNKNOWN = 0,
 	FORMAT_BITPLANES = 1,
 	FORMAT_CHUNKY = 2,
-	FORMAT_SPRITES = 3
+	FORMAT_SPRITES = 3,
+	FORMAT_PALETTE = 4
 } format_t;
 
 static bool write_chunky(
@@ -36,7 +38,21 @@ static bool write_bitplanes(
 	const unsigned int depth,
 	const bool interleaved
 ) {
-	buffer_t *buffer = bitplanes_convert(image, depth, interleaved);
+	buffer_t *buffer = interleaved ? bitplanes_convert_interleaved(image, depth) : bitplanes_convert(image, depth);
+	if (!buffer) { return false; }
+
+	bool error = buffer_write(buffer, outfile);
+	buffer_free(buffer);
+
+	return error;
+}
+
+static bool write_palette(
+	const char *outfile,
+	image_t *const image,
+	const unsigned int colors
+) {
+	buffer_t *buffer = palette_convert(image, colors);
 	if (!buffer) { return false; }
 
 	bool error = buffer_write(buffer, outfile);
@@ -50,26 +66,32 @@ static void usage(int status) {
 	printf("\n");
 	printf("Available options are:\n");
 	//      --------------------------------------------------------------------------------
-	printf(" -i, --interleaved                          Data in output file is stored\n");
-	printf("                                            in interleaved format.\n\n");
+	printf(" -i, --interleaved                                Data in output file is\n");
+	printf("                                                  stored in interleaved format.\n\n");
 
-	printf(" -d, --depth [1-8]                          Number of bitplanes to be saved\n");
-	printf("                                            in output file, only valid for\n");
-	printf("                                            bitplanes & sprites format.\n\n");
+	//      --------------------------------------------------------------------------------
+	printf(" -d, --depth [1-8]                                Number of bitplanes saved\n");
+	printf("                                                  in the output file, only valid\n");
+	printf("                                                  for bitplanes & sprites.\n\n");
 
-	printf(" -f, --format [bitplanes|chunky|sprites]    Desired output file format.\n\n");
+	printf(" -c, --colors [1-256]                             Number of colors saved\n");
+	printf("                                                  in the output file, only valid\n");
+	printf("                                                  for palette.\n\n");
+
+	printf(" -f, --format [bitplanes|chunky|sprites|palette]  Desired output file format.\n\n");
 
 	exit(status);
 }
 
 int main(int argc, char *argv[]) {
 	bool interleaved = false;
-	int depth = -1;
+	int depth = -1, colors = -1;
 	format_t format = FORMAT_UNKNOWN;
 
 	static struct option long_options[] = {
 		{"interleaved", no_argument, 0, 'i' },
 		{"depth", required_argument, 0, 'd' },
+		{"colors", required_argument, 0, 'c' },
 		{"format", required_argument, 0, 'f' },
 		{0, 0, 0, 0}
 	};
@@ -79,6 +101,9 @@ int main(int argc, char *argv[]) {
 		switch (opt) {
 			case 'd':
 				depth = atoi(optarg);
+				break;
+			case 'c':
+				colors = atoi(optarg);
 				break;
 			case 'i':
 				interleaved = true;
@@ -96,6 +121,10 @@ int main(int argc, char *argv[]) {
 					format = FORMAT_SPRITES;
 					break;
 				}
+				if (strcmp("palette", optarg) == 0) {
+					format = FORMAT_PALETTE;
+					break;
+				}
 				break;
 			default:
 				usage(EXIT_FAILURE);
@@ -104,11 +133,6 @@ int main(int argc, char *argv[]) {
 
 	if (format == FORMAT_UNKNOWN) {
 		printf("Error: No format specified.\n\n");
-		usage(EXIT_FAILURE);
-	}
-
-	if (format == FORMAT_BITPLANES && (depth < 1 || depth > 8)) {
-		printf("Error: Invalid depth specified.\n\n");
 		usage(EXIT_FAILURE);
 	}
 
@@ -156,6 +180,22 @@ int main(int argc, char *argv[]) {
 		}
 
 		if (!write_bitplanes(outfile, &image, depth, interleaved)) {
+			error = true;
+			printf("Error: Could not write output file \"%s\".\n", outfile);
+			goto error;
+		}
+	}
+
+	if (format == FORMAT_PALETTE) {
+		if (colors == -1) { colors = image.colors; }
+
+		if (colors < 1 || colors > 256) {
+			error = true;
+			printf("Error: Invalid colors specified.\n\n");
+			goto error;
+		}
+
+		if (!write_palette(outfile, &image, colors)) {
 			error = true;
 			printf("Error: Could not write output file \"%s\".\n", outfile);
 			goto error;

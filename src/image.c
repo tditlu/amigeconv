@@ -95,6 +95,7 @@ image_error_t image_load(image_t *const image, const char *infile) {
 	image->width = width;
 	image->height = height;
 	image->depth = depth;
+	image->colors = palette_size;
 
 error:
 	free(png);
