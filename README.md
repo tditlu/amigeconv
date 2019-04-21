@@ -1,5 +1,5 @@
 # Amigeconv
-`Ami`ga Ima`ge` `Conv`erter
+**Ami***ga* *Ima***ge** **Conv***erter*
 
 A graphics converter for Amiga bitplanes & chunky format.
 
