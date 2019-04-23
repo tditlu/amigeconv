@@ -5,6 +5,9 @@ A graphics converter for Amiga bitplanes & chunky format.
 
 Developed by Daniel Gerdgren and distributed under the terms of the [MIT license](./LICENSE).
 
+## Attention
+
+**This tool is currently in beta develompment phase, input parameters will change!**
 
 ## Building
 

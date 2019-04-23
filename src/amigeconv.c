@@ -12,6 +12,15 @@
 #include "formats/palette.h"
 
 typedef enum {
+	PALETTE_UNKNOWN = 0,
+	PALETTE_PAL4 = 1,
+	PALETTE_PAL8 = 2,
+	PALETTE_PAL32 = 3,
+	PALETTE_LOADRGB4 = 4,
+	PALETTE_LOADRGB32 = 5
+} palette_t;
+
+typedef enum {
 	FORMAT_UNKNOWN = 0,
 	FORMAT_BITPLANES = 1,
 	FORMAT_CHUNKY = 2,
@@ -38,7 +47,12 @@ static bool write_bitplanes(
 	const unsigned int depth,
 	const bool interleaved
 ) {
-	buffer_t *buffer = interleaved ? bitplanes_convert_interleaved(image, depth) : bitplanes_convert(image, depth);
+	buffer_t *buffer;
+	if (interleaved) {
+		buffer = bitplanes_convert_interleaved(image, depth);
+	} else {
+		buffer = bitplanes_convert(image, depth);
+	}
 	if (!buffer) { return false; }
 
 	bool error = buffer_write(buffer, outfile);
@@ -50,9 +64,26 @@ static bool write_bitplanes(
 static bool write_palette(
 	const char *outfile,
 	image_t *const image,
+	palette_t palette,
 	const unsigned int colors
 ) {
-	buffer_t *buffer = palette_convert(image, colors);
+	buffer_t *buffer;
+	if (palette == PALETTE_PAL4 || palette == PALETTE_LOADRGB4) {
+		buffer = palette_convert_pal4(image, colors);
+	}
+
+	if (palette == PALETTE_PAL8) {
+		buffer = palette_convert_pal8(image, colors);
+	}
+
+	if (palette == PALETTE_PAL32) {
+		buffer = palette_convert_pal32(image, colors);
+	}
+
+	if (palette == PALETTE_LOADRGB32) {
+		buffer = palette_convert_loadrgb32(image, colors);
+	}
+
 	if (!buffer) { return false; }
 
 	bool error = buffer_write(buffer, outfile);
@@ -78,7 +109,9 @@ static void usage(int status) {
 	printf("                                                  in the output file, only valid\n");
 	printf("                                                  for palette.\n\n");
 
-	printf(" -f, --format [bitplanes|chunky|sprites|palette]  Desired output file format.\n\n");
+	printf(" -p, --palette [pal8|pal4]                        Desired palette file format.\n\n");
+
+	printf(" -f, --format [bitplanes|chunky|palette]          Desired output file format.\n\n");
 
 	exit(status);
 }
@@ -86,18 +119,20 @@ static void usage(int status) {
 int main(int argc, char *argv[]) {
 	bool interleaved = false;
 	int depth = -1, colors = -1;
+	palette_t palette = PALETTE_UNKNOWN;
 	format_t format = FORMAT_UNKNOWN;
 
 	static struct option long_options[] = {
 		{"interleaved", no_argument, 0, 'i' },
 		{"depth", required_argument, 0, 'd' },
 		{"colors", required_argument, 0, 'c' },
+		{"palette", required_argument, 0, 'p' },
 		{"format", required_argument, 0, 'f' },
 		{0, 0, 0, 0}
 	};
 
 	int opt = 0;
-	while ((opt = getopt_long(argc, argv, "id:f:", long_options, NULL)) != EOF) {
+	while ((opt = getopt_long(argc, argv, "id:c:p:f:", long_options, NULL)) != EOF) {
 		switch (opt) {
 			case 'd':
 				depth = atoi(optarg);
@@ -123,6 +158,28 @@ int main(int argc, char *argv[]) {
 				}
 				if (strcmp("palette", optarg) == 0) {
 					format = FORMAT_PALETTE;
+					break;
+				}
+				break;
+			case 'p':
+				if (strcmp("pal4", optarg) == 0) {
+					palette = PALETTE_PAL4;
+					break;
+				}
+				if (strcmp("pal8", optarg) == 0) {
+					palette = PALETTE_PAL8;
+					break;
+				}
+				if (strcmp("pal32", optarg) == 0) {
+					palette = PALETTE_PAL32;
+					break;
+				}
+				if (strcmp("loadrgb4", optarg) == 0) {
+					palette = PALETTE_LOADRGB4;
+					break;
+				}
+				if (strcmp("loadrgb32", optarg) == 0) {
+					palette = PALETTE_LOADRGB32;
 					break;
 				}
 				break;
@@ -187,6 +244,12 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (format == FORMAT_PALETTE) {
+		if (palette == PALETTE_UNKNOWN) {
+			error = true;
+			printf("Error: Invalid palette specified.\n\n");
+			goto error;
+		}
+
 		if (colors == -1) { colors = image.colors; }
 
 		if (colors < 1 || colors > 256) {
@@ -195,7 +258,7 @@ int main(int argc, char *argv[]) {
 			goto error;
 		}
 
-		if (!write_palette(outfile, &image, colors)) {
+		if (!write_palette(outfile, &image, palette, colors)) {
 			error = true;
 			printf("Error: Could not write output file \"%s\".\n", outfile);
 			goto error;
