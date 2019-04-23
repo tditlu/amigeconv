@@ -34,7 +34,7 @@ Example:
 
 	amigeconv -f bitplanes -d 8 font.png font.raw
 	amigeconv -f chunky font.png font.chk
-	amigeconv -f palette font.png font.pal8
+	amigeconv -f palette -p pal8 font.png font.pal8
 
 ## Planned features
 * Sprites
