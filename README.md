@@ -20,13 +20,15 @@ In a Unix-like environment simply `make` the binary.
 Available options are:
 
 	-i, --interleaved                                     Data in output file is stored in interleaved format.
-	
+
 	-d, --depth [1-8]                                     Number of bitplanes saved in the output file, only valid for bitplanes & sprites.
-	
+
 	-c, --colors [1-256]                                  Number of colors saved in the output file, only valid for palette.
-	
+
 	-p, --palette [pal8|pal4|pal32|loadrgb4|loadrgb32]    Desired palette file format.
-	
+
+	-x, --copper                                          Generate copper list.
+
 	-f, --format [bitplanes|chunky|palette]               Desired output file format.
 
 
@@ -37,7 +39,6 @@ Example:
 	amigeconv -f palette -p pal8 font.png font.pal8
 
 ## Planned features
-* Palette
 * Sprites
 
 ## Acknowledgments

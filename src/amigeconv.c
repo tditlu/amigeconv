@@ -14,10 +14,12 @@
 typedef enum {
 	PALETTE_UNKNOWN = 0,
 	PALETTE_PAL4 = 1,
-	PALETTE_PAL8 = 2,
-	PALETTE_PAL32 = 3,
-	PALETTE_LOADRGB4 = 4,
-	PALETTE_LOADRGB32 = 5
+	PALETTE_PAL4_COPPER = 2,
+	PALETTE_PAL8 = 3,
+	PALETTE_PAL8_COPPER = 4,
+	PALETTE_PAL32 = 5,
+	PALETTE_LOADRGB4 = 6,
+	PALETTE_LOADRGB32 = 7
 } palette_t;
 
 typedef enum {
@@ -65,19 +67,32 @@ static bool write_palette(
 	const char *outfile,
 	image_t *const image,
 	palette_t palette,
-	const unsigned int colors
+	const unsigned int colors,
+	bool copper
 ) {
 	buffer_t *buffer;
-	if (palette == PALETTE_PAL4 || palette == PALETTE_LOADRGB4) {
-		buffer = palette_convert_pal4(image, colors);
+	if (palette == PALETTE_PAL4) {
+		if (copper) {
+			buffer = palette_convert_pal4_copper(image, colors);
+		} else {
+			buffer = palette_convert_pal4(image, colors);
+		}
 	}
 
 	if (palette == PALETTE_PAL8) {
-		buffer = palette_convert_pal8(image, colors);
+		if (copper) {
+			buffer = palette_convert_pal8_copper(image, colors);
+		} else {
+			buffer = palette_convert_pal8(image, colors);
+		}
 	}
 
 	if (palette == PALETTE_PAL32) {
 		buffer = palette_convert_pal32(image, colors);
+	}
+
+	if (palette == PALETTE_LOADRGB4) {
+		buffer = palette_convert_pal4(image, colors);
 	}
 
 	if (palette == PALETTE_LOADRGB32) {
@@ -100,13 +115,14 @@ static void usage(int status) {
 	printf(" -d, --depth [1-8]                                     Number of bitplanes saved in the output file, only valid for bitplanes & sprites.\n\n");
 	printf(" -c, --colors [1-256]                                  Number of colors saved in the output file, only valid for palette.\n\n");
 	printf(" -p, --palette [pal8|pal4|pal32|loadrgb4|loadrgb32]    Desired palette file format.\n\n");
+	printf(" -x, --copper                                          Generate copper list.\n\n");
 	printf(" -f, --format [bitplanes|chunky|palette]               Desired output file format.\n\n");
 
 	exit(status);
 }
 
 int main(int argc, char *argv[]) {
-	bool interleaved = false;
+	bool interleaved = false, copper = false;
 	int depth = -1, colors = -1;
 	palette_t palette = PALETTE_UNKNOWN;
 	format_t format = FORMAT_UNKNOWN;
@@ -116,12 +132,13 @@ int main(int argc, char *argv[]) {
 		{"depth", required_argument, 0, 'd' },
 		{"colors", required_argument, 0, 'c' },
 		{"palette", required_argument, 0, 'p' },
+		{"copper", required_argument, 0, 'x' },
 		{"format", required_argument, 0, 'f' },
 		{0, 0, 0, 0}
 	};
 
 	int opt = 0;
-	while ((opt = getopt_long(argc, argv, "id:c:p:f:", long_options, NULL)) != EOF) {
+	while ((opt = getopt_long(argc, argv, "id:c:p:xf:", long_options, NULL)) != EOF) {
 		switch (opt) {
 			case 'd':
 				depth = atoi(optarg);
@@ -131,6 +148,9 @@ int main(int argc, char *argv[]) {
 				break;
 			case 'i':
 				interleaved = true;
+				break;
+			case 'x':
+				copper = true;
 				break;
 			case 'f':
 				if (strcmp("bitplanes", optarg) == 0) {
@@ -247,7 +267,7 @@ int main(int argc, char *argv[]) {
 			goto error;
 		}
 
-		if (!write_palette(outfile, &image, palette, colors)) {
+		if (!write_palette(outfile, &image, palette, colors, copper)) {
 			error = true;
 			printf("Error: Could not write output file \"%s\".\n", outfile);
 			goto error;
