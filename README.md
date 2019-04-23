@@ -19,20 +19,15 @@ In a Unix-like environment simply `make` the binary.
 
 Available options are:
 
-	-i, --interleaved                                Data in output file is
-	                                                 stored in interleaved format.
+	-i, --interleaved                                     Data in output file is stored in interleaved format.
 
-	-d, --depth [1-8]                                Number of bitplanes saved
-	                                                 in the output file, only valid
-	                                                 for bitplanes & sprites.
+	-d, --depth [1-8]                                     Number of bitplanes saved in the output file, only valid for bitplanes & sprites.
 
-	-c, --colors [1-256]                             Number of colors saved
-	                                                 in the output file, only valid
-	                                                 for palette.
+	-c, --colors [1-256]                                  Number of colors saved in the output file, only valid for palette.
 
-	-f, --format [bitplanes|chunky|palette]          Desired output file format,
-                                                     palette only supports pal8
-                                                     at the moment.
+	-p, --palette [pal8|pal4|pal32|loadrgb4|loadrgb32]    Desired palette file format.
+
+	-f, --format [bitplanes|chunky|palette]               Desired output file format.
 
 
 Example:

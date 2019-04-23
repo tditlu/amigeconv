@@ -96,22 +96,11 @@ static void usage(int status) {
 	printf("Usage: amigeconv <options> <input> <output>\n");
 	printf("\n");
 	printf("Available options are:\n");
-	//      --------------------------------------------------------------------------------
-	printf(" -i, --interleaved                                Data in output file is\n");
-	printf("                                                  stored in interleaved format.\n\n");
-
-	//      --------------------------------------------------------------------------------
-	printf(" -d, --depth [1-8]                                Number of bitplanes saved\n");
-	printf("                                                  in the output file, only valid\n");
-	printf("                                                  for bitplanes & sprites.\n\n");
-
-	printf(" -c, --colors [1-256]                             Number of colors saved\n");
-	printf("                                                  in the output file, only valid\n");
-	printf("                                                  for palette.\n\n");
-
-	printf(" -p, --palette [pal8|pal4]                        Desired palette file format.\n\n");
-
-	printf(" -f, --format [bitplanes|chunky|palette]          Desired output file format.\n\n");
+	printf(" -i, --interleaved                                     Data in output file is stored in interleaved format.\n\n");
+	printf(" -d, --depth [1-8]                                     Number of bitplanes saved in the output file, only valid for bitplanes & sprites.\n\n");
+	printf(" -c, --colors [1-256]                                  Number of colors saved in the output file, only valid for palette.\n\n");
+	printf(" -p, --palette [pal8|pal4|pal32|loadrgb4|loadrgb32]    Desired palette file format.\n\n");
+	printf(" -f, --format [bitplanes|chunky|palette]               Desired output file format.\n\n");
 
 	exit(status);
 }
