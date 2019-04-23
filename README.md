@@ -1,7 +1,7 @@
 # Amigeconv
 **Ami**_ga_ _Ima_**ge** **Conv**_erter_
 
-A graphics converter for Amiga bitplanes & chunky format.
+A graphics converter for different Amiga bitplanes, chunky & palette formats.
 
 Developed by Daniel Gerdgren and distributed under the terms of the [MIT license](./LICENSE).
 
