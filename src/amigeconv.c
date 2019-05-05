@@ -12,6 +12,9 @@
 #include "formats/sprite.h"
 #include "formats/palette.h"
 
+#define AMIGECONV_VERSION "1.0.0"
+#define AMIGECONV_VERSION_DATE "2019-05-05"
+
 typedef enum {
 	PALETTE_UNKNOWN = 0,
 	PALETTE_PAL4 = 1,
@@ -130,19 +133,19 @@ static bool write_palette(
 }
 
 static void usage() {
-	printf("Amigeconv (Amiga Image Converter) by Todi / Tulou - version 1.0.0 (2019-03-05)\n\n");
+	printf("Amigeconv (Amiga Image Converter) by Todi / Tulou - version %s (%s)\n\n", AMIGECONV_VERSION, AMIGECONV_VERSION_DATE);
 	printf("Usage: amigeconv <options> <input> <output>\n");
 	printf("\n");
 	printf("Available options are:\n");
 	printf(" -f, --format [bitplane|chunky|palette|sprite]         Desired output file format.\n");
 	printf(" -p, --palette [pal8|pal4|pal32|loadrgb4|loadrgb32]    Desired palette file format.\n");
-	printf(" -l, --interleaved                                     Data in output file is stored in interleaved format, only valid for bitplane.\n");
-	printf(" -d, --depth [1-8]                                     Number of bitplane saved in the output file, only valid for bitplane & sprite.\n");
-	printf(" -c, --colors [1-256]                                  Number of colors saved in the output file, only valid for palette.\n");
-	printf(" -x, --copper                                          Generate copper list, only valid for palette.\n");
-	printf(" -w, --width [16|32|64]                                Width, only valid for sprite.\n");
-	printf(" -t, --controlword                                     Write control word, only valid for sprite.\n");
-	printf(" -a, --attached                                        Attach sprites, only valid for sprite.\n");
+	printf(" -l, --interleaved                                     Data in output file is stored in interleaved format, only valid with bitplane output file format.\n");
+	printf(" -d, --depth [1-8]                                     Number of bitplane saved in the output file, only valid with bitplane or sprite output file format.\n");
+	printf(" -c, --colors [1-256]                                  Number of colors saved in the output file, only valid with palette output file format.\n");
+	printf(" -x, --copper                                          Generate copper list, only valid with palette output file format.\n");
+	printf(" -w, --width [16,32,64]                                Width, only valid with sprite output file format.\n");
+	printf(" -t, --controlword                                     Write control word, only valid with sprite output file format.\n");
+	printf(" -a, --attached                                        Attach mode sprite, only valid with sprite output file format.\n");
 	printf("\n");
 }
 
