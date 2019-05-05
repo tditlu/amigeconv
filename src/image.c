@@ -28,13 +28,13 @@ image_error_t image_load(image_t *const image, const char *infile) {
 		goto error;
 	}
 
-	unsigned int colortype = png_state.info_png.color.colortype;
+	const unsigned int colortype = png_state.info_png.color.colortype;
 	if (colortype != LCT_PALETTE && colortype != LCT_GREY) {
 		error = IMAGE_ERROR_COLOR_TYPE;
 		goto error;
 	}
 
-	unsigned int bitdepth = png_state.info_png.color.bitdepth;
+	const unsigned int bitdepth = png_state.info_png.color.bitdepth;
 	if (!(bitdepth == 1 || bitdepth == 2 || bitdepth == 4 || bitdepth == 8)) {
 		error = IMAGE_ERROR_BIT_DEPTH;
 		goto error;
@@ -76,7 +76,7 @@ image_error_t image_load(image_t *const image, const char *infile) {
 	unsigned int i = png_state.info_png.color.palettesize;
 	while (i >>= 1) { depth++; }
 
-	unsigned int palette_size = png_state.info_png.color.palettesize;
+	const unsigned int palette_size = png_state.info_png.color.palettesize;
 	if (colortype == LCT_GREY) {
 		for (unsigned int i = 0; i < palette_size; i++) {
 			for (unsigned int j = 0; j < 3; j++) {

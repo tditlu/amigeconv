@@ -8,7 +8,8 @@
 #include "buffer.h"
 
 #include "formats/chunky.h"
-#include "formats/bitplanes.h"
+#include "formats/bitplane.h"
+#include "formats/sprite.h"
 #include "formats/palette.h"
 
 typedef enum {
@@ -24,9 +25,9 @@ typedef enum {
 
 typedef enum {
 	FORMAT_UNKNOWN = 0,
-	FORMAT_BITPLANES = 1,
+	FORMAT_BITPLANE = 1,
 	FORMAT_CHUNKY = 2,
-	FORMAT_SPRITES = 3,
+	FORMAT_SPRITE = 3,
 	FORMAT_PALETTE = 4
 } format_t;
 
@@ -37,13 +38,13 @@ static bool write_chunky(
 	buffer_t *buffer = chunky_convert(image);
 	if (!buffer) { return false; }
 
-	bool error = buffer_write(buffer, outfile);
+	const bool error = buffer_write(buffer, outfile);
 	buffer_free(buffer);
 
 	return error;
 }
 
-static bool write_bitplanes(
+static bool write_bitplane(
 	const char *outfile,
 	image_t *const image,
 	const unsigned int depth,
@@ -51,13 +52,34 @@ static bool write_bitplanes(
 ) {
 	buffer_t *buffer;
 	if (interleaved) {
-		buffer = bitplanes_convert_interleaved(image, depth);
+		buffer = bitplane_convert_interleaved(image, depth);
 	} else {
-		buffer = bitplanes_convert(image, depth);
+		buffer = bitplane_convert(image, depth);
 	}
 	if (!buffer) { return false; }
 
-	bool error = buffer_write(buffer, outfile);
+	const bool error = buffer_write(buffer, outfile);
+	buffer_free(buffer);
+
+	return error;
+}
+
+static bool write_sprite(
+	const char *outfile,
+	image_t *const image,
+	const unsigned int width,
+	const bool controlword,
+	const bool attached
+) {
+	buffer_t *buffer;
+	if (attached) {
+		buffer = sprite_convert_attached(image, width, controlword);
+	} else {
+		buffer = sprite_convert(image, width, controlword);
+	}
+	if (!buffer) { return false; }
+
+	const bool error = buffer_write(buffer, outfile);
 	buffer_free(buffer);
 
 	return error;
@@ -101,120 +123,147 @@ static bool write_palette(
 
 	if (!buffer) { return false; }
 
-	bool error = buffer_write(buffer, outfile);
+	const bool error = buffer_write(buffer, outfile);
 	buffer_free(buffer);
 
 	return error;
 }
 
-static void usage(int status) {
+static void usage() {
+	printf("Amigeconv (Amiga Image Converter) by Todi / Tulou - version 1.0.0 (2019-03-05)\n\n");
 	printf("Usage: amigeconv <options> <input> <output>\n");
 	printf("\n");
 	printf("Available options are:\n");
-	printf(" -i, --interleaved                                     Data in output file is stored in interleaved format.\n\n");
-	printf(" -d, --depth [1-8]                                     Number of bitplanes saved in the output file, only valid for bitplanes & sprites.\n\n");
-	printf(" -c, --colors [1-256]                                  Number of colors saved in the output file, only valid for palette.\n\n");
-	printf(" -p, --palette [pal8|pal4|pal32|loadrgb4|loadrgb32]    Desired palette file format.\n\n");
-	printf(" -x, --copper                                          Generate copper list.\n\n");
-	printf(" -f, --format [bitplanes|chunky|palette]               Desired output file format.\n\n");
-
-	exit(status);
+	printf(" -f, --format [bitplane|chunky|palette|sprite]         Desired output file format.\n");
+	printf(" -p, --palette [pal8|pal4|pal32|loadrgb4|loadrgb32]    Desired palette file format.\n");
+	printf(" -l, --interleaved                                     Data in output file is stored in interleaved format, only valid for bitplane.\n");
+	printf(" -d, --depth [1-8]                                     Number of bitplane saved in the output file, only valid for bitplane & sprite.\n");
+	printf(" -c, --colors [1-256]                                  Number of colors saved in the output file, only valid for palette.\n");
+	printf(" -x, --copper                                          Generate copper list, only valid for palette.\n");
+	printf(" -w, --width [16|32|64]                                Width, only valid for sprite.\n");
+	printf(" -t, --controlword                                     Write control word, only valid for sprite.\n");
+	printf(" -a, --attached                                        Attach sprites, only valid for sprite.\n");
+	printf("\n");
 }
 
 int main(int argc, char *argv[]) {
-	bool interleaved = false, copper = false;
-	int depth = -1, colors = -1;
+	bool interleaved = false, copper = false, controlword = false, attached = false;
+	int depth = -1, colors = -1, width = -1;
 	palette_t palette = PALETTE_UNKNOWN;
 	format_t format = FORMAT_UNKNOWN;
 
-	static struct option long_options[] = {
-		{"interleaved", no_argument, 0, 'i' },
+	const struct option longopts[] = {
+		{"format", required_argument, 0, 'f' },
+		{"palette", required_argument, 0, 'p' },
+		{"interleaved", no_argument, 0, 'l' },
 		{"depth", required_argument, 0, 'd' },
 		{"colors", required_argument, 0, 'c' },
-		{"palette", required_argument, 0, 'p' },
 		{"copper", required_argument, 0, 'x' },
-		{"format", required_argument, 0, 'f' },
+		{"width", required_argument, 0, 'w' },
+		{"controlword", no_argument, 0, 't' },
+		{"attached", no_argument, 0, 'a' },
 		{0, 0, 0, 0}
 	};
 
+	const char *optstring = "f:p:ld:c:xw:ta";
+
+	if (argc <= 1) {
+		usage();
+		exit(EXIT_FAILURE);
+	}
+
 	int opt = 0;
-	while ((opt = getopt_long(argc, argv, "id:c:p:xf:", long_options, NULL)) != EOF) {
+	while ((opt = getopt_long(argc, argv, optstring, longopts, 0)) != EOF) {
 		switch (opt) {
+			case 'f':
+				if (!strcmp("bitplane", optarg)) {
+					format = FORMAT_BITPLANE;
+					break;
+				}
+				if (!strcmp("chunky", optarg)) {
+					format = FORMAT_CHUNKY;
+					break;
+				}
+				if (!strcmp("sprite", optarg)) {
+					format = FORMAT_SPRITE;
+					break;
+				}
+				if (!strcmp("palette", optarg)) {
+					format = FORMAT_PALETTE;
+					break;
+				}
+				break;
+			case 'p':
+				if (!strcmp("pal4", optarg)) {
+					palette = PALETTE_PAL4;
+					break;
+				}
+				if (!strcmp("pal8", optarg)) {
+					palette = PALETTE_PAL8;
+					break;
+				}
+				if (!strcmp("pal32", optarg)) {
+					palette = PALETTE_PAL32;
+					break;
+				}
+				if (!strcmp("loadrgb4", optarg)) {
+					palette = PALETTE_LOADRGB4;
+					break;
+				}
+				if (!strcmp("loadrgb32", optarg)) {
+					palette = PALETTE_LOADRGB32;
+					break;
+				}
+				break;
+			case 'l':
+				interleaved = true;
+				break;
 			case 'd':
 				depth = atoi(optarg);
 				break;
 			case 'c':
 				colors = atoi(optarg);
 				break;
-			case 'i':
-				interleaved = true;
-				break;
 			case 'x':
 				copper = true;
 				break;
-			case 'f':
-				if (strcmp("bitplanes", optarg) == 0) {
-					format = FORMAT_BITPLANES;
-					break;
-				}
-				if (strcmp("chunky", optarg) == 0) {
-					format = FORMAT_CHUNKY;
-					break;
-				}
-				if (strcmp("sprites", optarg) == 0) {
-					format = FORMAT_SPRITES;
-					break;
-				}
-				if (strcmp("palette", optarg) == 0) {
-					format = FORMAT_PALETTE;
-					break;
-				}
+			case 'w':
+				width = atoi(optarg);
 				break;
-			case 'p':
-				if (strcmp("pal4", optarg) == 0) {
-					palette = PALETTE_PAL4;
-					break;
-				}
-				if (strcmp("pal8", optarg) == 0) {
-					palette = PALETTE_PAL8;
-					break;
-				}
-				if (strcmp("pal32", optarg) == 0) {
-					palette = PALETTE_PAL32;
-					break;
-				}
-				if (strcmp("loadrgb4", optarg) == 0) {
-					palette = PALETTE_LOADRGB4;
-					break;
-				}
-				if (strcmp("loadrgb32", optarg) == 0) {
-					palette = PALETTE_LOADRGB32;
-					break;
-				}
+			case 't':
+				controlword = true;
+				break;
+			case 'a':
+				attached = true;
 				break;
 			default:
-				usage(EXIT_FAILURE);
+				usage();
+				exit(EXIT_FAILURE);
 		}
 	}
 
 	if (format == FORMAT_UNKNOWN) {
+		usage();
 		printf("Error: No format specified.\n\n");
-		usage(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 
 	if ((argc - optind) == 0) {
+		usage();
 		printf("Error: No input file specified.\n\n");
-		usage(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 
 	if ((argc - optind) == 1) {
+		usage();
 		printf("Error: No output file specified.\n\n");
-		usage(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 
 	if ((argc - optind) > 2) {
+		usage();
 		printf("Error: Too many files specified.\n\n");
-		usage(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 
 	const char *infile = argv[optind++];
@@ -223,31 +272,91 @@ int main(int argc, char *argv[]) {
 	image_t image;
 	bool error = false;
 
-	image_error_t image_error = image_load(&image, infile);
+	const image_error_t image_error = image_load(&image, infile);
 	if (image_error) {
 		error = true;
-		printf("Error: Could not load input file \"%s\". %s\n", infile, image_error_text(error));
+		printf("Error: Could not load input file \"%s\". %s\n\n", infile, image_error_text(error));
 		goto error;
 	}
 
 	if (format == FORMAT_CHUNKY && !write_chunky(outfile, &image)) {
 		error = true;
-		printf("Error: Could not write output file \"%s\".\n", outfile);
+		printf("Error: Could not write output file \"%s\".\n\n", outfile);
 		goto error;
 	}
 
-	if (format == FORMAT_BITPLANES) {
-		if (depth == -1) { depth = image.depth; }
-
-		if (depth < 1 || depth > 8) {
+	if (format == FORMAT_BITPLANE) {
+		if (image.width % 8 != 0) {
 			error = true;
-			printf("Error: Invalid depth specified.\n\n");
+			printf("Error: Invalid input file width.\n\n");
 			goto error;
 		}
 
-		if (!write_bitplanes(outfile, &image, depth, interleaved)) {
+		bool depth_not_set = false;
+		if (depth == -1) {
+			depth = image.depth;
+			depth_not_set = true;
+		}
+
+		if (depth < 1 || depth > 8) {
 			error = true;
-			printf("Error: Could not write output file \"%s\".\n", outfile);
+			if (depth_not_set) {
+				printf("Error: Invalid input file image depth.\n\n");
+			} else {
+				printf("Error: Invalid depth specified.\n\n");
+			}
+			goto error;
+		}
+
+		if (!write_bitplane(outfile, &image, depth, interleaved)) {
+			error = true;
+			printf("Error: Could not write output file \"%s\".\n\n", outfile);
+			goto error;
+		}
+	}
+
+	if (format == FORMAT_SPRITE) {
+		if (image.width % 8 != 0) {
+			error = true;
+			printf("Error: Invalid input file width.\n\n");
+			goto error;
+		}
+
+		bool depth_not_set = false;
+		if (depth == -1) {
+			depth = image.depth;
+			depth_not_set = true;
+		}
+
+		if ((!attached && depth != 2) || (attached && depth != 4)) {
+			error = true;
+			if (depth_not_set) {
+				printf("Error: Invalid input file image depth.\n\n");
+			} else {
+				printf("Error: Invalid depth specified.\n\n");
+			}
+			goto error;
+		}
+
+		bool width_not_set = false;
+		if (width == -1) {
+			width = image.width;
+			width_not_set = true;
+		}
+
+		if (width != 16 && width != 32 && width != 64) {
+			error = true;
+			if (width_not_set) {
+				printf("Error: Invalid input file image width.\n\n");
+			} else {
+				printf("Error: Invalid width specified.\n\n");
+			}
+			goto error;
+		}
+
+		if (!write_sprite(outfile, &image, width, controlword, attached)) {
+			error = true;
+			printf("Error: Could not write output file \"%s\".\n\n", outfile);
 			goto error;
 		}
 	}
@@ -259,24 +368,34 @@ int main(int argc, char *argv[]) {
 			goto error;
 		}
 
-		if (colors == -1) { colors = image.colors; }
+		bool colors_not_set = false;
+		if (colors == -1) {
+			colors = image.colors;
+			colors_not_set = true;
+		}
 
 		if (colors < 1 || colors > 256) {
 			error = true;
-			printf("Error: Invalid colors specified.\n\n");
+			if (colors_not_set) {
+				printf("Error: Invalid input file image colors.\n\n");
+			} else {
+				printf("Error: Invalid colors specified.\n\n");
+			}
 			goto error;
 		}
 
 		if (!write_palette(outfile, &image, palette, colors, copper)) {
 			error = true;
-			printf("Error: Could not write output file \"%s\".\n", outfile);
+			printf("Error: Could not write output file \"%s\".\n\n", outfile);
 			goto error;
 		}
 	}
 
 error:
 	image_free(&image);
-	if (error) { exit(EXIT_FAILURE); }
+	if (error) {
+		exit(EXIT_FAILURE);
+	}
 
 	return EXIT_SUCCESS;
 }
