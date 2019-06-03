@@ -8,13 +8,7 @@
 buffer_t *palette_convert_pal4(image_t *const image, const unsigned int colors) {
 	if (colors < 1 || colors > 256) { return NULL; }
 
-	// Calculate needed buffer size
-	unsigned int buffer_size = 0;
-	for (unsigned int i = 0; i < colors * 4; i += 4) {
-		buffer_size++;
-		buffer_size++;
-	}
-
+	unsigned int buffer_size = (((colors * 4) + (4 - 1)) >> 2) * 2;
 	buffer_t *buffer = buffer_create(buffer_size);
 	if (!buffer) { return NULL; }
 
@@ -44,15 +38,7 @@ buffer_t *palette_convert_pal4(image_t *const image, const unsigned int colors) 
 buffer_t *palette_convert_pal4_copper(image_t *const image, const unsigned int colors) {
 	if (colors < 1 || colors > 32) { return NULL; }
 
-	// Calculate needed buffer size
-	unsigned int buffer_size = 0;
-	for (unsigned int i = 0; i < colors * 4; i += 4) {
-		buffer_size++;
-		buffer_size++;
-		buffer_size++;
-		buffer_size++;
-	}
-
+	unsigned int buffer_size = (((colors * 4) + (4 - 1)) >> 2) * 4;
 	buffer_t *buffer = buffer_create(buffer_size);
 	if (!buffer) { return NULL; }
 
@@ -85,15 +71,7 @@ buffer_t *palette_convert_pal4_copper(image_t *const image, const unsigned int c
 buffer_t *palette_convert_pal8(image_t *const image, const unsigned int colors) {
 	if (colors < 1 || colors > 256) { return NULL; }
 
-	// Calculate needed buffer size
-	unsigned int buffer_size = 0;
-	for (unsigned int i = 0; i < colors * 4; i += 4) {
-		buffer_size++;
-		buffer_size++;
-		buffer_size++;
-		buffer_size++;
-	}
-
+	unsigned int buffer_size = (((colors * 4) + (4 - 1)) >> 2) * 4;
 	buffer_t *buffer = buffer_create(buffer_size);
 	if (!buffer) { return NULL; }
 
@@ -117,36 +95,12 @@ buffer_t *palette_convert_pal8_copper(image_t *const image, const unsigned int c
 
 	// Calculate needed buffer size
 	unsigned int buffer_size = 0;
-	for (unsigned int i = 0; i < colors; i += 32) {
-		buffer_size++;
-		buffer_size++;
-		buffer_size++;
-		buffer_size++;
-
-		for (unsigned int h = 0; h < 32; h++) { // High
-			if ((i + h) >= colors) { break; }
-
-			buffer_size++;
-			buffer_size++;
-			buffer_size++;
-			buffer_size++;
-		}
-
-		buffer_size++;
-		buffer_size++;
-		buffer_size++;
-		buffer_size++;
-
-		for (unsigned int l = 0; l < 32; l++) { // Low
-			if ((i + l) >= colors) { break; }
-
-			buffer_size++;
-			buffer_size++;
-			buffer_size++;
-			buffer_size++;
+	for (unsigned int  i = 0; i < colors; i += 32, buffer_size += 8) {
+		for (unsigned int  j = 0; j < 32; j++) {
+			if ((i + j) >= colors) { break; }
+			buffer_size += 8;
 		}
 	}
-
 	buffer_t *buffer = buffer_create(buffer_size);
 
 	unsigned int j = 0;
@@ -204,22 +158,7 @@ buffer_t *palette_convert_pal8_copper(image_t *const image, const unsigned int c
 buffer_t *palette_convert_pal32(image_t *const image, const unsigned int colors) {
 	if (colors < 1 || colors > 256) { return NULL; }
 
-	// Calculate needed buffer size
-	unsigned int buffer_size = 0;
-	for (unsigned int i = 0; i < colors * 4; i += 4) {
-		for (unsigned int k = 0; k < 4; k++) {
-			buffer_size++;
-		}
-
-		for (unsigned int k = 0; k < 4; k++) {
-			buffer_size++;
-		}
-
-		for (unsigned int k = 0; k < 4; k++) {
-			buffer_size++;
-		}
-	}
-
+	unsigned int buffer_size = (((colors * 4) + (4 - 1)) >> 2) * 4 * 3;
 	buffer_t *buffer = buffer_create(buffer_size);
 	if (!buffer) { return NULL; }
 
@@ -248,31 +187,7 @@ buffer_t *palette_convert_pal32(image_t *const image, const unsigned int colors)
 buffer_t *palette_convert_loadrgb32(image_t *const image, const unsigned int colors) {
 	if (colors < 1 || colors > 256) { return NULL; }
 
-	// Calculate needed buffer size
-	unsigned int buffer_size = 0;
-	buffer_size++;
-	buffer_size++;
-	buffer_size++;
-	buffer_size++;
-	for (unsigned int i = 0; i < colors * 4; i += 4) {
-		for (unsigned int k = 0; k < 4; k++) {
-			buffer_size++;
-		}
-
-		for (unsigned int k = 0; k < 4; k++) {
-			buffer_size++;
-		}
-
-		for (unsigned int k = 0; k < 4; k++) {
-			buffer_size++;
-		}
-	}
-	buffer_size++;
-	buffer_size++;
-	buffer_size++;
-	buffer_size++;
-
-
+	unsigned int buffer_size = ((((colors * 4) + (4 - 1)) >> 2) * 4 * 3) + 8;
 	buffer_t *buffer = buffer_create(buffer_size);
 	if (!buffer) { return NULL; }
 

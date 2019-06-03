@@ -10,28 +10,10 @@ buffer_t *sprite_convert(image_t *const image, const unsigned int width, const b
 
 	// Calculate needed buffer size
 	unsigned int buffer_size = 0;
-	for (unsigned int x = 0; x < image->width; x += width) {
-		if (controlword) {
-			for (unsigned int i = 0; i < width >> 2; i++) {
-				buffer_size++;
-			}
-		}
-		for (unsigned int y = 0; y < image->height; y++) {
-			for (unsigned int i = 0; i < width; i += 8) {
-				buffer_size++;
-			}
-
-			for (unsigned int i = 0; i < width; i += 8) {
-				buffer_size++;
-			}
-		}
-		if (controlword) {
-			for (unsigned int i = 0; i < width >> 2; i++) {
-				buffer_size++;
-			}
-		}
+	for (unsigned int i = 0; i < image->width; i += width) {
+		if (controlword) { buffer_size += (width >> 2) * 2; }
+		buffer_size += image->height * (((width + (8 - 1)) >> 3) * 2);
 	}
-
 	buffer_t *buffer = buffer_create(buffer_size);
 	if (!buffer) { return NULL; }
 
@@ -75,43 +57,10 @@ buffer_t *sprite_convert_attached(image_t *const image, const unsigned int width
 
 	// Calculate needed buffer size
 	unsigned int buffer_size = 0;
-	for (unsigned int x = 0; x < image->width; x += width) {
-		if (controlword) {
-			for (unsigned int i = 0; i < width >> 2; i++) {
-				buffer_size++;
-			}
-		}
-		for (unsigned int y = 0; y < image->height; y++) {
-			for (unsigned int i = 0; i < width; i += 8) {
-				buffer_size++;
-			}
-
-			for (unsigned int i = 0; i < width; i += 8) {
-				buffer_size++;
-			}
-		}
-		if (controlword) {
-			for (unsigned int i = 0; i < width >> 2; i++) {
-				buffer_size++;
-				buffer_size++;
-			}
-		}
-		for (unsigned int y = 0; y < image->height; y++) {
-			for (unsigned int i = 0; i < width; i += 8) {
-				buffer_size++;
-			}
-
-			for (unsigned int i = 0; i < width; i += 8) {
-				buffer_size++;
-			}
-		}
-		if (controlword) {
-			for (unsigned int i = 0; i < width >> 2; i++) {
-				buffer_size++;
-			}
-		}
+	for (unsigned int i = 0; i < image->width; i += width) {
+		if (controlword) { buffer_size += (width >> 2) * 4; }
+		buffer_size += image->height * (((width + (8 - 1)) >> 3) * 4);
 	}
-
 	buffer_t *buffer = buffer_create(buffer_size);
 	if (!buffer) { return NULL; }
 
