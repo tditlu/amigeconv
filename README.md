@@ -3,6 +3,8 @@
 
 A graphics converter for different Amiga bitplanes, chunky & palette formats.
 
+*Anagram phun intended...*
+
 Developed and distributed under the terms of the [MIT license](./LICENSE).
 
 ## Building
