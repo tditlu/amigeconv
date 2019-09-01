@@ -278,7 +278,7 @@ int main(int argc, char *argv[]) {
 	const image_error_t image_error = image_load(&image, infile);
 	if (image_error) {
 		error = true;
-		printf("Error: Could not load input file \"%s\". %s\n\n", infile, image_error_text(error));
+		printf("Error: Could not load input file \"%s\". %s\n\n", infile, image_error_text(image_error));
 		goto error;
 	}
 
