@@ -12,8 +12,8 @@
 #include "formats/sprite.h"
 #include "formats/palette.h"
 
-#define AMIGECONV_VERSION "1.0.1"
-#define AMIGECONV_VERSION_DATE "2019-09-01"
+#define AMIGECONV_VERSION "1.0.2"
+#define AMIGECONV_VERSION_DATE "2021-01-24"
 
 typedef enum {
 	PALETTE_UNKNOWN = 0,
@@ -93,14 +93,15 @@ static bool write_palette(
 	image_t *const image,
 	palette_t palette,
 	const unsigned int colors,
-	bool copper
+	bool copper,
+	const bool piccon_compatibility
 ) {
 	buffer_t *buffer;
 	if (palette == PALETTE_PAL4) {
 		if (copper) {
-			buffer = palette_convert_pal4_copper(image, colors);
+			buffer = palette_convert_pal4_copper(image, colors, piccon_compatibility);
 		} else {
-			buffer = palette_convert_pal4(image, colors);
+			buffer = palette_convert_pal4(image, colors, piccon_compatibility);
 		}
 	}
 
@@ -117,7 +118,7 @@ static bool write_palette(
 	}
 
 	if (palette == PALETTE_LOADRGB4) {
-		buffer = palette_convert_pal4(image, colors);
+		buffer = palette_convert_pal4(image, colors, piccon_compatibility);
 	}
 
 	if (palette == PALETTE_LOADRGB32) {
@@ -146,11 +147,12 @@ static void usage() {
 	printf(" -w, --width [16,32,64]                                Width, only valid with sprite output file format.\n");
 	printf(" -t, --controlword                                     Write control word, only valid with sprite output file format.\n");
 	printf(" -a, --attached                                        Attach mode sprite, only valid with sprite output file format.\n");
+	printf(" -n, --piccon                                          Use PicCon compatible color conversion for 4 bit palette, only valid with palette output file format.\n");
 	printf("\n");
 }
 
 int main(int argc, char *argv[]) {
-	bool interleaved = false, copper = false, controlword = false, attached = false;
+	bool interleaved = false, copper = false, controlword = false, attached = false, piccon_compatibility = false;
 	int depth = -1, colors = -1, width = -1;
 	palette_t palette = PALETTE_UNKNOWN;
 	format_t format = FORMAT_UNKNOWN;
@@ -165,6 +167,7 @@ int main(int argc, char *argv[]) {
 		{"width", required_argument, 0, 'w' },
 		{"controlword", no_argument, 0, 't' },
 		{"attached", no_argument, 0, 'a' },
+		{"piccon", no_argument, 0, 'n' },
 		{0, 0, 0, 0}
 	};
 
@@ -238,6 +241,9 @@ int main(int argc, char *argv[]) {
 				break;
 			case 'a':
 				attached = true;
+				break;
+			case 'n':
+				piccon_compatibility = true;
 				break;
 			default:
 				usage();
@@ -387,7 +393,7 @@ int main(int argc, char *argv[]) {
 			goto error;
 		}
 
-		if (!write_palette(outfile, &image, palette, colors, copper)) {
+		if (!write_palette(outfile, &image, palette, colors, copper, piccon_compatibility)) {
 			error = true;
 			printf("Error: Could not write output file \"%s\".\n\n", outfile);
 			goto error;

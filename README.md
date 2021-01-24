@@ -35,6 +35,8 @@ Available options are:
 
 	-a, --attached                                        Attach sprites, only valid for sprite.
 
+	-n, --piccon                                          Use PicCon compatible color conversion for 4 bit palette, only valid with palette output file format.
+
 Examples:
 
 	amigeconv -f bitplanes -d 8 font.png font.raw

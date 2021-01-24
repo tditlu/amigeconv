@@ -1,11 +1,11 @@
 #include <stdlib.h>
-// #include <math.h>
+#include <math.h>
 
 #include "../buffer.h"
 #include "../image.h"
 
 // PAL4 & LOADRGB4 is the same format
-buffer_t *palette_convert_pal4(image_t *const image, const unsigned int colors) {
+buffer_t *palette_convert_pal4(image_t *const image, const unsigned int colors, const bool piccon_compatibility) {
 	if (colors < 1 || colors > 256) { return NULL; }
 
 	unsigned int buffer_size = (((colors * 4) + (4 - 1)) >> 2) * 2;
@@ -18,15 +18,18 @@ buffer_t *palette_convert_pal4(image_t *const image, const unsigned int colors) 
 		unsigned char g = buffer_get_byte(image->palette, i + 1);
 		unsigned char b = buffer_get_byte(image->palette, i + 2);
 
-		// Correct conversion
-//		r = round((float)r / 17.0);
-//		g = round((float)g / 17.0);
-//		b = round((float)b / 17.0);
+		if (piccon_compatibility) {
+			// PicCon compatibility
+			r >>= 4;
+			g >>= 4;
+			b >>= 4;
+		} else {
+			// Correct conversion
+			r = round((float)r / 17.0);
+			g = round((float)g / 17.0);
+			b = round((float)b / 17.0);
+		}
 
-		// PicCon compatibility
-		r >>= 4;
-		g >>= 4;
-		b >>= 4;
 
 		buffer_set_byte(buffer, j++, r);
 		buffer_set_byte(buffer, j++, (g << 4) + b);
@@ -35,7 +38,7 @@ buffer_t *palette_convert_pal4(image_t *const image, const unsigned int colors) 
 	return buffer;
 }
 
-buffer_t *palette_convert_pal4_copper(image_t *const image, const unsigned int colors) {
+buffer_t *palette_convert_pal4_copper(image_t *const image, const unsigned int colors, const bool piccon_compatibility) {
 	if (colors < 1 || colors > 32) { return NULL; }
 
 	unsigned int buffer_size = (((colors * 4) + (4 - 1)) >> 2) * 4;
@@ -48,15 +51,17 @@ buffer_t *palette_convert_pal4_copper(image_t *const image, const unsigned int c
 		unsigned char g = buffer_get_byte(image->palette, i + 1);
 		unsigned char b = buffer_get_byte(image->palette, i + 2);
 
-		// Correct conversion
-//		r = round((float)r / 17.0);
-//		g = round((float)g / 17.0);
-//		b = round((float)b / 17.0);
-
-		// PicCon compatibility
-		r >>= 4;
-		g >>= 4;
-		b >>= 4;
+		if (piccon_compatibility) {
+			// PicCon compatibility
+			r >>= 4;
+			g >>= 4;
+			b >>= 4;
+		} else {
+			// Correct conversion
+			r = round((float)r / 17.0);
+			g = round((float)g / 17.0);
+			b = round((float)b / 17.0);
+		}
 
 		buffer_set_byte(buffer, j++, (reg >> 8) & 255);
 		buffer_set_byte(buffer, j++, reg & 255);
