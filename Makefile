@@ -2,6 +2,7 @@ TARGET = amigeconv
 
 CC     = gcc
 CFLAGS = -Wall -Werror -O3
+LIBS   = -lm
 
 SRCDIR = src
 OBJDIR = obj
@@ -15,7 +16,7 @@ all: $(BINDIR)/$(TARGET)
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
 	@mkdir -p $(dir $@)
-	@$(CC) $(CFLAGS) $(OBJECTS) -o $@ -lm
+	@$(CC) $(CFLAGS) $(OBJECTS) $(LIBS) -o $@ 
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(INCLUDES)
 	@mkdir -p $(dir $@)

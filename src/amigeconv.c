@@ -12,8 +12,8 @@
 #include "formats/sprite.h"
 #include "formats/palette.h"
 
-#define AMIGECONV_VERSION "1.0.2"
-#define AMIGECONV_VERSION_DATE "2021-01-24"
+#define AMIGECONV_VERSION "1.0.3"
+#define AMIGECONV_VERSION_DATE "2021-02-18"
 
 typedef enum {
 	PALETTE_UNKNOWN = 0,
@@ -53,7 +53,7 @@ static bool write_bitplane(
 	const unsigned int depth,
 	const bool interleaved
 ) {
-	buffer_t *buffer;
+	buffer_t *buffer = NULL;
 	if (interleaved) {
 		buffer = bitplane_convert_interleaved(image, depth);
 	} else {
@@ -74,7 +74,7 @@ static bool write_sprite(
 	const bool controlword,
 	const bool attached
 ) {
-	buffer_t *buffer;
+	buffer_t *buffer = NULL;
 	if (attached) {
 		buffer = sprite_convert_attached(image, width, controlword);
 	} else {
