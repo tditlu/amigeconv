@@ -37,7 +37,7 @@ Available options are:
 
 	-n, --piccon                                          Use PicCon compatible color conversion for 4 bit palette, only valid with palette output file format.
 
-Examples:
+### Examples:
 
 	amigeconv -f bitplanes -d 8 font.png font.raw
 	amigeconv -f chunky font.png font.chk
@@ -45,10 +45,16 @@ Examples:
 	amigeconv -f sprite -t font.png font.spr
 
 ## Acknowledgments
-Amigeconv uses the following libraries:
 
-* [LodePNG](http://lodev.org/lodepng/) by Lode Vandevenne
+### Contributors:
 
-Amigeconv is inspired by:
+[![](https://github.com/tditlu.png?size=24)](https://github.com/tditlu)
+[![](https://github.com/timfel.png?size=24)](https://github.com/timfel)
 
-* [SuperFamiconv](https://github.com/Optiroc/SuperFamiconv) by David Lindecrantz
+### Libraries used:
+
+[LodePNG](http://lodev.org/lodepng/) by Lode Vandevenne
+
+### Inspired by:
+
+[SuperFamiconv](https://github.com/Optiroc/SuperFamiconv) by David Lindecrantz
