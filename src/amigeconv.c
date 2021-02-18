@@ -12,7 +12,7 @@
 #include "formats/sprite.h"
 #include "formats/palette.h"
 
-#define AMIGECONV_VERSION "1.0.3"
+#define AMIGECONV_VERSION "1.0.4"
 #define AMIGECONV_VERSION_DATE "2021-02-18"
 
 typedef enum {
