@@ -96,7 +96,7 @@ static bool write_palette(
 	bool copper,
 	const bool piccon_compatibility
 ) {
-	buffer_t *buffer;
+	buffer_t *buffer = NULL;
 	if (palette == PALETTE_PAL4) {
 		if (copper) {
 			buffer = palette_convert_pal4_copper(image, colors, piccon_compatibility);

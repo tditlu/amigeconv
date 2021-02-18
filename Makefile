@@ -15,7 +15,7 @@ all: $(BINDIR)/$(TARGET)
 
 $(BINDIR)/$(TARGET): $(OBJECTS)
 	@mkdir -p $(dir $@)
-	@$(CC) $(CFLAGS) $(OBJECTS) -o $@
+	@$(CC) $(CFLAGS) $(OBJECTS) -o $@ -lm
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(INCLUDES)
 	@mkdir -p $(dir $@)
