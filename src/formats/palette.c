@@ -25,9 +25,9 @@ buffer_t *palette_convert_pal4(image_t *const image, const unsigned int colors, 
 			b >>= 4;
 		} else {
 			// Correct conversion
-			r = round((float)r / 17.0);
-			g = round((float)g / 17.0);
-			b = round((float)b / 17.0);
+			r = round((float)r / 17.0f);
+			g = round((float)g / 17.0f);
+			b = round((float)b / 17.0f);
 		}
 
 
@@ -58,9 +58,9 @@ buffer_t *palette_convert_pal4_copper(image_t *const image, const unsigned int c
 			b >>= 4;
 		} else {
 			// Correct conversion
-			r = round((float)r / 17.0);
-			g = round((float)g / 17.0);
-			b = round((float)b / 17.0);
+			r = round((float)r / 17.0f);
+			g = round((float)g / 17.0f);
+			b = round((float)b / 17.0f);
 		}
 
 		buffer_set_byte(buffer, j++, (reg >> 8) & 255);
