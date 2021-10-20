@@ -39,7 +39,7 @@ Available options are:
 
 ### Examples:
 
-	amigeconv -f bitplanes -d 8 font.png font.raw
+	amigeconv -f bitplane -d 8 font.png font.raw
 	amigeconv -f chunky font.png font.chk
 	amigeconv -f palette -p pal8 font.png font.pal8
 	amigeconv -f sprite -t font.png font.spr
