@@ -12,8 +12,8 @@
 #include "formats/sprite.h"
 #include "formats/palette.h"
 
-#define AMIGECONV_VERSION "1.0.4"
-#define AMIGECONV_VERSION_DATE "2021-02-18"
+#define AMIGECONV_VERSION "1.0.5"
+#define AMIGECONV_VERSION_DATE "2021-10-22"
 
 typedef enum {
 	PALETTE_UNKNOWN = 0,
@@ -401,7 +401,10 @@ int main(int argc, char *argv[]) {
 	}
 
 error:
-	image_free(&image);
+	if (!image_error) {
+		image_free(&image);
+	}
+
 	if (error) {
 		exit(EXIT_FAILURE);
 	}
