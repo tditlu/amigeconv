@@ -12,8 +12,8 @@
 #include "formats/sprite.h"
 #include "formats/palette.h"
 
-#define AMIGECONV_VERSION "1.0.6"
-#define AMIGECONV_VERSION_DATE "2023-03-17"
+#define AMIGECONV_VERSION "1.0.7"
+#define AMIGECONV_VERSION_DATE "2024-03-17"
 
 typedef enum {
 	PALETTE_UNKNOWN = 0,
@@ -51,13 +51,19 @@ static bool write_bitplane(
 	const char *outfile,
 	image_t *const image,
 	const unsigned int depth,
-	const bool interleaved
+	const bool interleaved,
+	const bool mask,
+	const bool mask_inverted
 ) {
 	buffer_t *buffer = NULL;
-	if (interleaved) {
-		buffer = bitplane_convert_interleaved(image, depth);
+	if (mask) {
+		buffer = bitplane_convert_mask(image, depth, mask_inverted);
 	} else {
-		buffer = bitplane_convert(image, depth);
+		if (interleaved) {
+			buffer = bitplane_convert_interleaved(image, depth);
+		} else {
+			buffer = bitplane_convert(image, depth);
+		}
 	}
 	if (!buffer) { return false; }
 
@@ -138,21 +144,27 @@ static void usage() {
 	printf("Usage: amigeconv <options> <input> <output>\n");
 	printf("\n");
 	printf("Available options are:\n");
-	printf(" -f, --format [bitplane|chunky|palette|sprite]         Desired output file format.\n");
-	printf(" -p, --palette [pal8|pal4|pal32|loadrgb4|loadrgb32]    Desired palette file format.\n");
-	printf(" -l, --interleaved                                     Data in output file is stored in interleaved format, only valid with bitplane output file format.\n");
-	printf(" -d, --depth [1-8]                                     Number of bitplane saved in the output file, only valid with bitplane or sprite output file format.\n");
-	printf(" -c, --colors [1-256]                                  Number of colors saved in the output file, only valid with palette output file format.\n");
-	printf(" -x, --copper                                          Generate copper list, only valid with palette output file format.\n");
-	printf(" -w, --width [16,32,64]                                Width, only valid with sprite output file format.\n");
-	printf(" -t, --controlword                                     Write control word, only valid with sprite output file format.\n");
-	printf(" -a, --attached                                        Attach mode sprite, only valid with sprite output file format.\n");
-	printf(" -n, --piccon                                          Use PicCon compatible color conversion for 4 bit palette, only valid with palette output file format.\n");
+	printf(" -f, --format bitplane,chunky,palette,sprite         Desired output file format.\n");
+	printf(" -p, --palette pal8,pal4,pal32,loadrgb4,loadrgb32    Desired palette file format.\n");
+	printf(" -l, --interleaved                                   Data in output file is stored in interleaved format, only valid with bitplane output file format.\n");
+	printf(" -m, --mask [inverted]                               Data in output file is stored as a mask, only valid with bitplane output file format.\n");
+	printf(" -d, --depth 1-8                                     Number of bitplane saved in the output file, only valid with bitplane or sprite output file format.\n");
+	printf(" -c, --colors 1-256                                  Number of colors saved in the output file, only valid with palette output file format.\n");
+	printf(" -x, --copper                                        Generate copper list, only valid with palette output file format.\n");
+	printf(" -w, --width 16,32,64                                Width, only valid with sprite output file format.\n");
+	printf(" -t, --controlword                                   Write control word, only valid with sprite output file format.\n");
+	printf(" -a, --attached                                      Attach mode sprite, only valid with sprite output file format.\n");
+	printf(" -n, --piccon                                        Use PicCon compatible color conversion for 4 bit palette, only valid with palette output file format.\n");
 	printf("\n");
 }
 
+#define OPTIONAL_ARGUMENT_IS_PRESENT \
+    ((optarg == NULL && optind < argc && argv[optind][0] != '-') \
+     ? (bool) (optarg = argv[optind++]) \
+     : (optarg != NULL))
+
 int main(int argc, char *argv[]) {
-	bool interleaved = false, copper = false, controlword = false, attached = false, piccon_compatibility = false;
+	bool interleaved = false, mask = false, mask_inverted = false, copper = false, controlword = false, attached = false, piccon_compatibility = false;
 	int depth = -1, colors = -1, width = -1;
 	palette_t palette = PALETTE_UNKNOWN;
 	format_t format = FORMAT_UNKNOWN;
@@ -161,9 +173,10 @@ int main(int argc, char *argv[]) {
 		{"format", required_argument, 0, 'f' },
 		{"palette", required_argument, 0, 'p' },
 		{"interleaved", no_argument, 0, 'l' },
+		{"mask", optional_argument, 0, 'm' },
 		{"depth", required_argument, 0, 'd' },
 		{"colors", required_argument, 0, 'c' },
-		{"copper", required_argument, 0, 'x' },
+		{"copper", no_argument, 0, 'x' },
 		{"width", required_argument, 0, 'w' },
 		{"controlword", no_argument, 0, 't' },
 		{"attached", no_argument, 0, 'a' },
@@ -171,7 +184,7 @@ int main(int argc, char *argv[]) {
 		{0, 0, 0, 0}
 	};
 
-	const char *optstring = "f:p:ld:c:xw:ta";
+	const char *optstring = "f:p:lm::d:c:xw:tan";
 
 	if (argc <= 1) {
 		usage();
@@ -223,6 +236,19 @@ int main(int argc, char *argv[]) {
 				break;
 			case 'l':
 				interleaved = true;
+				break;
+			case 'm':
+				mask = true;
+				mask_inverted = false;
+				if (OPTIONAL_ARGUMENT_IS_PRESENT) {
+					if (!strcmp("inverted", optarg)) {
+						mask_inverted = true;
+					} else {
+						usage();
+						printf("Error: Invalid mask type.\n\n");
+						exit(EXIT_FAILURE);
+					}
+				}
 				break;
 			case 'd':
 				depth = atoi(optarg);
@@ -317,7 +343,13 @@ int main(int argc, char *argv[]) {
 			goto error;
 		}
 
-		if (!write_bitplane(outfile, &image, depth, interleaved)) {
+		if (mask && interleaved) {
+			error = true;
+			printf("Error: Interleaved can't be specified with mask.\n\n");
+			goto error;
+		}
+
+		if (!write_bitplane(outfile, &image, depth, interleaved, mask, mask_inverted)) {
 			error = true;
 			printf("Error: Could not write output file \"%s\".\n\n", outfile);
 			goto error;
