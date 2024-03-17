@@ -1,0 +1,37 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: ${{ github.event.repository.name }}
+            asset_name: linux-amd64
+          - os: windows-latest
+            artifact_name: ${{ github.event.repository.name }}.exe
+            asset_name: windows-amd64.exe
+          - os: macos-latest
+            artifact_name: ${{ github.event.repository.name }}
+            asset_name: macos-amd64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Allow to checkout of paths that would cause problems with the NTFS
+        if: matrix.os == 'windows-latest'
+        run: git config --global core.protectNTFS false
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build release for ${{ matrix.os }}
+        run: make TARGET=${{ matrix.artifact_name }}
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: bin/${{ matrix.artifact_name }}
+          asset_name: ${{ github.event.repository.name }}-${{ github.ref_name }}-${{ matrix.asset_name }}
+          tag: ${{ github.ref }}
