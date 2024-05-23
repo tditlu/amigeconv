@@ -45,7 +45,7 @@ amigeconv -f sprite -t font.png font.spr
 
 ## Install
 
-### For Mac with [Homebrew](https://brew.sh/):
+### For Mac with [Homebrew](https://github.com/tditlu/homebrew-amiga):
 
  ```
  brew tap tditlu/amiga
