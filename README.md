@@ -63,7 +63,7 @@ amigeconv -f sprite -t font.png font.spr
 
 [![](https://github.com/tditlu.png?size=24)](https://github.com/tditlu)
 [![](https://github.com/timfel.png?size=24)](https://github.com/timfel)
-[![](https://github.com/timfel.png?size=24)](https://github.com/izero79)
+[![](https://github.com/izero79.png?size=24)](https://github.com/izero79)
 
 ### Libraries used:
 
