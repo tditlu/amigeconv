@@ -1,6 +1,6 @@
 #!/bin/bash
 test () {
-	if diff $1 $2 > /dev/null
+	if diff $1 $2 > /dev/null 2>&1
 	then
 		printf "\033[0;32mResult:\033[0m Binary files $1 and $2 is the same\n\n"
 	else
@@ -25,6 +25,14 @@ test output/amigeconv/random8_mask.raw data/piccon/random8_mask.raw
 printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m inverted -d 8 data/random8.png output/amigeconv/random8_mask_inv.raw\n"
 ../bin/amigeconv -f bitplane -m inverted -d 8 data/random8.png output/amigeconv/random8_mask_inv.raw
 test output/amigeconv/random8_mask_inv.raw data/piccon/random8_mask_inv.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m -d 8 data/random8.png output/amigeconv/random8_mask_i.raw\n"
+../bin/amigeconv -l -f bitplane -m -d 8 data/random8.png output/amigeconv/random8_mask_i.raw
+test output/amigeconv/random8_mask_i.raw data/piccon/random8_mask_i.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m inverted -d 8 data/random8.png output/amigeconv/random8_mask_inv_i.raw\n"
+../bin/amigeconv -l -f bitplane -m inverted -d 8 data/random8.png output/amigeconv/random8_mask_inv_i.raw
+test output/amigeconv/random8_mask_inv_i.raw data/piccon/random8_mask_inv_i.raw
 
 printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -d 8 data/random8.png output/amigeconv/random8.raw\n"
 ../bin/amigeconv -f bitplane -d 8 data/random8.png output/amigeconv/random8.raw
