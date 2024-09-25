@@ -57,7 +57,11 @@ static bool write_bitplane(
 ) {
 	buffer_t *buffer = NULL;
 	if (mask) {
-		buffer = bitplane_convert_mask(image, depth, mask_inverted);
+		if (interleaved) {
+			buffer = bitplane_convert_mask_interleaved(image, depth, mask_inverted);
+		} else {
+			buffer = bitplane_convert_mask(image, depth, mask_inverted);
+		}
 	} else {
 		if (interleaved) {
 			buffer = bitplane_convert_interleaved(image, depth);
@@ -340,12 +344,6 @@ int main(int argc, char *argv[]) {
 			} else {
 				printf("Error: Invalid depth specified.\n\n");
 			}
-			goto error;
-		}
-
-		if (mask && interleaved) {
-			error = true;
-			printf("Error: Interleaved can't be specified with mask.\n\n");
 			goto error;
 		}
 
