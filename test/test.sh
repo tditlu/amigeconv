@@ -18,6 +18,14 @@ printf "\033[0;33mCommand:\033[0m amigeconv -f chunky data/random8.png output/am
 ../bin/amigeconv -f chunky data/random8.png output/amigeconv/random8.chk
 test output/amigeconv/random8.chk data/piccon/random8.chk
 
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -d 8 data/random8.png output/amigeconv/random8.raw\n"
+../bin/amigeconv -f bitplane -d 8 data/random8.png output/amigeconv/random8.raw
+test output/amigeconv/random8.raw data/piccon/random8.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -d 8 data/random8.png output/amigeconv/random8_i.raw\n"
+../bin/amigeconv -l -f bitplane -d 8 data/random8.png output/amigeconv/random8_i.raw
+test output/amigeconv/random8_i.raw data/piccon/random8_i.raw
+
 printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m -d 8 data/random8.png output/amigeconv/random8_mask.raw\n"
 ../bin/amigeconv -f bitplane -m -d 8 data/random8.png output/amigeconv/random8_mask.raw
 test output/amigeconv/random8_mask.raw data/piccon/random8_mask.raw
@@ -34,13 +42,8 @@ printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m inverted -d 8 data
 ../bin/amigeconv -l -f bitplane -m inverted -d 8 data/random8.png output/amigeconv/random8_mask_inv_i.raw
 test output/amigeconv/random8_mask_inv_i.raw data/piccon/random8_mask_inv_i.raw
 
-printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -d 8 data/random8.png output/amigeconv/random8.raw\n"
-../bin/amigeconv -f bitplane -d 8 data/random8.png output/amigeconv/random8.raw
-test output/amigeconv/random8.raw data/piccon/random8.raw
 
-printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -d 8 data/random8.png output/amigeconv/random8_i.raw\n"
-../bin/amigeconv -l -f bitplane -d 8 data/random8.png output/amigeconv/random8_i.raw
-test output/amigeconv/random8_i.raw data/piccon/random8_i.raw
+
 
 printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -d 7 data/random7.png output/amigeconv/random7.raw\n"
 ../bin/amigeconv -f bitplane -d 7 data/random7.png output/amigeconv/random7.raw
@@ -50,6 +53,25 @@ printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -d 7 data/random7.png
 ../bin/amigeconv -l -f bitplane -d 7 data/random7.png output/amigeconv/random7_i.raw
 test output/amigeconv/random7_i.raw data/piccon/random7_i.raw
 
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m -d 7 data/random7.png output/amigeconv/random7_mask.raw\n"
+../bin/amigeconv -f bitplane -m -d 7 data/random7.png output/amigeconv/random7_mask.raw
+test output/amigeconv/random7_mask.raw data/piccon/random7_mask.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m inverted -d 7 data/random7.png output/amigeconv/random7_mask_inv.raw\n"
+../bin/amigeconv -f bitplane -m inverted -d 7 data/random7.png output/amigeconv/random7_mask_inv.raw
+test output/amigeconv/random7_mask_inv.raw data/piccon/random7_mask_inv.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m -d 7 data/random7.png output/amigeconv/random7_mask_i.raw\n"
+../bin/amigeconv -l -f bitplane -m -d 7 data/random7.png output/amigeconv/random7_mask_i.raw
+test output/amigeconv/random7_mask_i.raw data/piccon/random7_mask_i.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m inverted -d 7 data/random7.png output/amigeconv/random7_mask_inv_i.raw\n"
+../bin/amigeconv -l -f bitplane -m inverted -d 7 data/random7.png output/amigeconv/random7_mask_inv_i.raw
+test output/amigeconv/random7_mask_inv_i.raw data/piccon/random7_mask_inv_i.raw
+
+
+
+
 printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -d 6 data/random6.png output/amigeconv/random6.raw\n"
 ../bin/amigeconv -f bitplane -d 6 data/random6.png output/amigeconv/random6.raw
 test output/amigeconv/random6.raw data/piccon/random6.raw
@@ -57,6 +79,24 @@ test output/amigeconv/random6.raw data/piccon/random6.raw
 printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -d 6 data/random6.png output/amigeconv/random6_i.raw\n"
 ../bin/amigeconv -l -f bitplane -d 6 data/random6.png output/amigeconv/random6_i.raw
 test output/amigeconv/random6_i.raw data/piccon/random6_i.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m -d 6 data/random6.png output/amigeconv/random6_mask.raw\n"
+../bin/amigeconv -f bitplane -m -d 6 data/random6.png output/amigeconv/random6_mask.raw
+test output/amigeconv/random6_mask.raw data/piccon/random6_mask.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m inverted -d 6 data/random6.png output/amigeconv/random6_mask_inv.raw\n"
+../bin/amigeconv -f bitplane -m inverted -d 6 data/random6.png output/amigeconv/random6_mask_inv.raw
+test output/amigeconv/random6_mask_inv.raw data/piccon/random6_mask_inv.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m -d 6 data/random6.png output/amigeconv/random6_mask_i.raw\n"
+../bin/amigeconv -l -f bitplane -m -d 6 data/random6.png output/amigeconv/random6_mask_i.raw
+test output/amigeconv/random6_mask_i.raw data/piccon/random6_mask_i.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m inverted -d 6 data/random6.png output/amigeconv/random6_mask_inv_i.raw\n"
+../bin/amigeconv -l -f bitplane -m inverted -d 6 data/random6.png output/amigeconv/random6_mask_inv_i.raw
+test output/amigeconv/random6_mask_inv_i.raw data/piccon/random6_mask_inv_i.raw
+
+
 
 printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -d 5 data/random5.png output/amigeconv/random5.raw\n"
 ../bin/amigeconv -f bitplane -d 5 data/random5.png output/amigeconv/random5.raw
@@ -66,6 +106,25 @@ printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -d 5 data/random5.png
 ../bin/amigeconv -l -f bitplane -d 5 data/random5.png output/amigeconv/random5_i.raw
 test output/amigeconv/random5_i.raw data/piccon/random5_i.raw
 
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m -d 5 data/random5.png output/amigeconv/random5_mask.raw\n"
+../bin/amigeconv -f bitplane -m -d 5 data/random5.png output/amigeconv/random5_mask.raw
+test output/amigeconv/random5_mask.raw data/piccon/random5_mask.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m inverted -d 5 data/random5.png output/amigeconv/random5_mask_inv.raw\n"
+../bin/amigeconv -f bitplane -m inverted -d 5 data/random5.png output/amigeconv/random5_mask_inv.raw
+test output/amigeconv/random5_mask_inv.raw data/piccon/random5_mask_inv.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m -d 5 data/random5.png output/amigeconv/random5_mask_i.raw\n"
+../bin/amigeconv -l -f bitplane -m -d 5 data/random5.png output/amigeconv/random5_mask_i.raw
+test output/amigeconv/random5_mask_i.raw data/piccon/random5_mask_i.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m inverted -d 5 data/random5.png output/amigeconv/random5_mask_inv_i.raw\n"
+../bin/amigeconv -l -f bitplane -m inverted -d 5 data/random5.png output/amigeconv/random5_mask_inv_i.raw
+test output/amigeconv/random5_mask_inv_i.raw data/piccon/random5_mask_inv_i.raw
+
+
+
+
 printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -d 4 data/random4.png output/amigeconv/random4.raw\n"
 ../bin/amigeconv -f bitplane -d 4 data/random4.png output/amigeconv/random4.raw
 test output/amigeconv/random4.raw data/piccon/random4.raw
@@ -73,6 +132,25 @@ test output/amigeconv/random4.raw data/piccon/random4.raw
 printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -d 4 data/random4.png output/amigeconv/random4_i.raw\n"
 ../bin/amigeconv -l -f bitplane -d 4 data/random4.png output/amigeconv/random4_i.raw
 test output/amigeconv/random4_i.raw data/piccon/random4_i.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m -d 4 data/random4.png output/amigeconv/random4_mask.raw\n"
+../bin/amigeconv -f bitplane -m -d 4 data/random4.png output/amigeconv/random4_mask.raw
+test output/amigeconv/random4_mask.raw data/piccon/random4_mask.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m inverted -d 4 data/random4.png output/amigeconv/random4_mask_inv.raw\n"
+../bin/amigeconv -f bitplane -m inverted -d 4 data/random4.png output/amigeconv/random4_mask_inv.raw
+test output/amigeconv/random4_mask_inv.raw data/piccon/random4_mask_inv.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m -d 4 data/random4.png output/amigeconv/random4_mask_i.raw\n"
+../bin/amigeconv -l -f bitplane -m -d 4 data/random4.png output/amigeconv/random4_mask_i.raw
+test output/amigeconv/random4_mask_i.raw data/piccon/random4_mask_i.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m inverted -d 4 data/random4.png output/amigeconv/random4_mask_inv_i.raw\n"
+../bin/amigeconv -l -f bitplane -m inverted -d 4 data/random4.png output/amigeconv/random4_mask_inv_i.raw
+test output/amigeconv/random4_mask_inv_i.raw data/piccon/random4_mask_inv_i.raw
+
+
+
 
 printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -d 3 data/random3.png output/amigeconv/random3.raw\n"
 ../bin/amigeconv -f bitplane -d 3 data/random3.png output/amigeconv/random3.raw
@@ -82,6 +160,25 @@ printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -d 3 data/random3.png
 ../bin/amigeconv -l -f bitplane -d 3 data/random3.png output/amigeconv/random3_i.raw
 test output/amigeconv/random3_i.raw data/piccon/random3_i.raw
 
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m -d 3 data/random3.png output/amigeconv/random3_mask.raw\n"
+../bin/amigeconv -f bitplane -m -d 3 data/random3.png output/amigeconv/random3_mask.raw
+test output/amigeconv/random3_mask.raw data/piccon/random3_mask.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m inverted -d 3 data/random3.png output/amigeconv/random3_mask_inv.raw\n"
+../bin/amigeconv -f bitplane -m inverted -d 3 data/random3.png output/amigeconv/random3_mask_inv.raw
+test output/amigeconv/random3_mask_inv.raw data/piccon/random3_mask_inv.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m -d 3 data/random3.png output/amigeconv/random3_mask_i.raw\n"
+../bin/amigeconv -l -f bitplane -m -d 3 data/random3.png output/amigeconv/random3_mask_i.raw
+test output/amigeconv/random3_mask_i.raw data/piccon/random3_mask_i.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m inverted -d 3 data/random3.png output/amigeconv/random3_mask_inv_i.raw\n"
+../bin/amigeconv -l -f bitplane -m inverted -d 3 data/random3.png output/amigeconv/random3_mask_inv_i.raw
+test output/amigeconv/random3_mask_inv_i.raw data/piccon/random3_mask_inv_i.raw
+
+
+
+
 printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -d 2 data/random2.png output/amigeconv/random2.raw\n"
 ../bin/amigeconv -f bitplane -d 2 data/random2.png output/amigeconv/random2.raw
 test output/amigeconv/random2.raw data/piccon/random2.raw
@@ -89,6 +186,25 @@ test output/amigeconv/random2.raw data/piccon/random2.raw
 printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -d 2 data/random2.png output/amigeconv/random2_i.raw\n"
 ../bin/amigeconv -l -f bitplane -d 2 data/random2.png output/amigeconv/random2_i.raw
 test output/amigeconv/random2_i.raw data/piccon/random2_i.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m -d 2 data/random2.png output/amigeconv/random2_mask.raw\n"
+../bin/amigeconv -f bitplane -m -d 2 data/random2.png output/amigeconv/random2_mask.raw
+test output/amigeconv/random2_mask.raw data/piccon/random2_mask.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m inverted -d 2 data/random2.png output/amigeconv/random2_mask_inv.raw\n"
+../bin/amigeconv -f bitplane -m inverted -d 2 data/random2.png output/amigeconv/random2_mask_inv.raw
+test output/amigeconv/random2_mask_inv.raw data/piccon/random2_mask_inv.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m -d 2 data/random2.png output/amigeconv/random2_mask_i.raw\n"
+../bin/amigeconv -l -f bitplane -m -d 2 data/random2.png output/amigeconv/random2_mask_i.raw
+test output/amigeconv/random2_mask_i.raw data/piccon/random2_mask_i.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m inverted -d 2 data/random2.png output/amigeconv/random2_mask_inv_i.raw\n"
+../bin/amigeconv -l -f bitplane -m inverted -d 2 data/random2.png output/amigeconv/random2_mask_inv_i.raw
+test output/amigeconv/random2_mask_inv_i.raw data/piccon/random2_mask_inv_i.raw
+
+
+
 
 printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -d 1 data/random1.png output/amigeconv/random1.raw\n"
 ../bin/amigeconv -f bitplane -d 1 data/random1.png output/amigeconv/random1.raw
@@ -98,13 +214,24 @@ printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -d 1 data/random1.png
 ../bin/amigeconv -l -f bitplane -d 1 data/random1.png output/amigeconv/random1_i.raw
 test output/amigeconv/random1_i.raw data/piccon/random1_i.raw
 
-printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -d 1 data/random1.png output/amigeconv/random1_i.raw\n"
-../bin/amigeconv -l -f bitplane -d 1 data/random1.png output/amigeconv/random1_i.raw
-test output/amigeconv/random1_i.raw data/piccon/random1_i.raw
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m -d 1 data/random1.png output/amigeconv/random1_mask.raw\n"
+../bin/amigeconv -f bitplane -m -d 1 data/random1.png output/amigeconv/random1_mask.raw
+test output/amigeconv/random1_mask.raw data/piccon/random1_mask.raw
 
-printf "\033[0;33mCommand:\033[0m amigeconv -n -f palette -p pal4 data/random1.png output/amigeconv/random1.pal4\n"
-../bin/amigeconv -n -f palette -p pal4 data/random1.png output/amigeconv/random1.pal4
-test output/amigeconv/random1.pal4 data/piccon/random1.pal4
+printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -m inverted -d 1 data/random1.png output/amigeconv/random1_mask_inv.raw\n"
+../bin/amigeconv -f bitplane -m inverted -d 1 data/random1.png output/amigeconv/random1_mask_inv.raw
+test output/amigeconv/random1_mask_inv.raw data/piccon/random1_mask_inv.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m -d 1 data/random1.png output/amigeconv/random1_mask_i.raw\n"
+../bin/amigeconv -l -f bitplane -m -d 1 data/random1.png output/amigeconv/random1_mask_i.raw
+test output/amigeconv/random1_mask_i.raw data/piccon/random1_mask_i.raw
+
+printf "\033[0;33mCommand:\033[0m amigeconv -l -f bitplane -m inverted -d 1 data/random1.png output/amigeconv/random1_mask_inv_i.raw\n"
+../bin/amigeconv -l -f bitplane -m inverted -d 1 data/random1.png output/amigeconv/random1_mask_inv_i.raw
+test output/amigeconv/random1_mask_inv_i.raw data/piccon/random1_mask_inv_i.raw
+
+
+
 
 printf "\033[0;33mCommand:\033[0m amigeconv -n -f palette -p pal4 data/random1.png output/amigeconv/random1.pal4\n"
 ../bin/amigeconv -n -f palette -p pal4 data/random1.png output/amigeconv/random1.pal4
@@ -138,9 +265,9 @@ printf "\033[0;33mCommand:\033[0m amigeconv -n -f palette -p pal4 data/random8.p
 ../bin/amigeconv -n -f palette -p pal4 data/random8.png output/amigeconv/random8.pal4
 test output/amigeconv/random8.pal4 data/piccon/random8.pal4
 
-printf "\033[0;33mCommand:\033[0m amigeconv -n -f palette -p pal4 -x data/random1.png output/amigeconv/random1.pal4_copper\n"
-../bin/amigeconv -n -f palette -p pal4 -x data/random1.png output/amigeconv/random1.pal4_copper
-test output/amigeconv/random1.pal4_copper data/piccon/random1.pal4_copper
+
+
+
 
 printf "\033[0;33mCommand:\033[0m amigeconv -n -f palette -p pal4 -x data/random1.png output/amigeconv/random1.pal4_copper\n"
 ../bin/amigeconv -n -f palette -p pal4 -x data/random1.png output/amigeconv/random1.pal4_copper
@@ -161,6 +288,14 @@ test output/amigeconv/random4.pal4_copper data/piccon/random4.pal4_copper
 printf "\033[0;33mCommand:\033[0m amigeconv -n -f palette -p pal4 -x data/random5.png output/amigeconv/random5.pal4_copper\n"
 ../bin/amigeconv -n -f palette -p pal4 -x data/random5.png output/amigeconv/random5.pal4_copper
 test output/amigeconv/random5.pal4_copper data/piccon/random5.pal4_copper
+
+
+
+
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f palette -p pal8 data/random1.png output/amigeconv/random1.pal8\n"
+../bin/amigeconv -f palette -p pal8 data/random1.png output/amigeconv/random1.pal8
+test output/amigeconv/random1.pal8 data/piccon/random1.pal8
 
 printf "\033[0;33mCommand:\033[0m amigeconv -f palette -p pal8 data/random2.png output/amigeconv/random2.pal8\n"
 ../bin/amigeconv -f palette -p pal8 data/random2.png output/amigeconv/random2.pal8
@@ -190,6 +325,13 @@ printf "\033[0;33mCommand:\033[0m amigeconv -f palette -p pal8 data/random8.png 
 ../bin/amigeconv -f palette -p pal8 data/random8.png output/amigeconv/random8.pal8
 test output/amigeconv/random8.pal8 data/piccon/random8.pal8
 
+
+
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f palette -p pal8 -x data/random1.png output/amigeconv/random1.pal8_copper\n"
+../bin/amigeconv -f palette -p pal8 -x data/random1.png output/amigeconv/random1.pal8_copper
+test output/amigeconv/random1.pal8_copper data/piccon/random1.pal8_copper
+
 printf "\033[0;33mCommand:\033[0m amigeconv -f palette -p pal8 -x data/random2.png output/amigeconv/random2.pal8_copper\n"
 ../bin/amigeconv -f palette -p pal8 -x data/random2.png output/amigeconv/random2.pal8_copper
 test output/amigeconv/random2.pal8_copper data/piccon/random2.pal8_copper
@@ -218,6 +360,13 @@ printf "\033[0;33mCommand:\033[0m amigeconv -f palette -p pal8 -x data/random8.p
 ../bin/amigeconv -f palette -p pal8 -x data/random8.png output/amigeconv/random8.pal8_copper
 test output/amigeconv/random8.pal8_copper data/piccon/random8.pal8_copper
 
+
+
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f palette -p pal32 data/random1.png output/amigeconv/random1.pal32\n"
+../bin/amigeconv -f palette -p pal32 data/random1.png output/amigeconv/random1.pal32
+test output/amigeconv/random1.pal32 data/piccon/random1.pal32
+
 printf "\033[0;33mCommand:\033[0m amigeconv -f palette -p pal32 data/random2.png output/amigeconv/random2.pal32\n"
 ../bin/amigeconv -f palette -p pal32 data/random2.png output/amigeconv/random2.pal32
 test output/amigeconv/random2.pal32 data/piccon/random2.pal32
@@ -245,6 +394,10 @@ test output/amigeconv/random7.pal32 data/piccon/random7.pal32
 printf "\033[0;33mCommand:\033[0m amigeconv -f palette -p pal32 data/random8.png output/amigeconv/random8.pal32\n"
 ../bin/amigeconv -f palette -p pal32 data/random8.png output/amigeconv/random8.pal32
 test output/amigeconv/random8.pal32 data/piccon/random8.pal32
+
+
+
+
 
 printf "\033[0;33mCommand:\033[0m amigeconv -n -f palette -p loadrgb4 data/random1.png output/amigeconv/random1.loadrgb4\n"
 ../bin/amigeconv -n -f palette -p loadrgb4 data/random1.png output/amigeconv/random1.loadrgb4
@@ -278,9 +431,9 @@ printf "\033[0;33mCommand:\033[0m amigeconv -n -f palette -p loadrgb4 data/rando
 ../bin/amigeconv -n -f palette -p loadrgb4 data/random8.png output/amigeconv/random8.loadrgb4
 test output/amigeconv/random8.loadrgb4 data/piccon/random8.loadrgb4
 
-printf "\033[0;33mCommand:\033[0m amigeconv -f palette -p loadrgb32 data/random1.png output/amigeconv/random1.loadrgb32\n"
-../bin/amigeconv -f palette -p loadrgb32 data/random1.png output/amigeconv/random1.loadrgb32
-test output/amigeconv/random1.loadrgb32 data/piccon/random1.loadrgb32
+
+
+
 
 printf "\033[0;33mCommand:\033[0m amigeconv -f palette -p loadrgb32 data/random1.png output/amigeconv/random1.loadrgb32\n"
 ../bin/amigeconv -f palette -p loadrgb32 data/random1.png output/amigeconv/random1.loadrgb32
@@ -313,6 +466,11 @@ test output/amigeconv/random7.loadrgb32 data/piccon/random7.loadrgb32
 printf "\033[0;33mCommand:\033[0m amigeconv -f palette -p loadrgb32 data/random8.png output/amigeconv/random8.loadrgb32\n"
 ../bin/amigeconv -f palette -p loadrgb32 data/random8.png output/amigeconv/random8.loadrgb32
 test output/amigeconv/random8.loadrgb32 data/piccon/random8.loadrgb32
+
+
+
+
+
 
 printf "\033[0;33mCommand:\033[0m amigeconv -f sprite -w 16 data/random2.png output/amigeconv/random2_16.spr\n"
 ../bin/amigeconv -f sprite -w 16 data/random2.png output/amigeconv/random2_16.spr
