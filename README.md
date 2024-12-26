@@ -24,7 +24,7 @@ Available options are:
 -p, --palette pal8,pal4,pal32,loadrgb4,loadrgb32    Desired palette file format.
 -l, --interleaved                                   Data in output file is stored in interleaved format, only valid with bitplane output file format.
 -m, --mask [inverted]                               Data in output file is stored as a mask, only valid with bitplane output file format.
--d, --depth 1-8                                     Number of bitplane saved in the output file, only valid with bitplane or sprite output file format.
+-d, --depth 1-8                                     Number of bitplane saved in the output file, only valid with bitplane, sprite or chunky output file format.
 -c, --colors 1-256                                  Number of colors saved in the output file, only valid with palette output file format.
 -x, --copper                                        Generate copper list, only valid with palette output file format.
 -w, --width 16,32,64                                Width, only valid with sprite output file format.
