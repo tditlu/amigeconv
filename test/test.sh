@@ -18,6 +18,18 @@ printf "\033[0;33mCommand:\033[0m amigeconv -f chunky data/random8.png output/am
 ../bin/amigeconv -f chunky data/random8.png output/amigeconv/random8.chk
 test output/amigeconv/random8.chk data/piccon/random8.chk
 
+printf "\033[0;33mCommand:\033[0m amigeconv -f chunky -d 8 data/random8.png output/amigeconv/random8_d.chk\n"
+../bin/amigeconv -f chunky -d 8 data/random8.png output/amigeconv/random8_d.chk
+test output/amigeconv/random8_d.chk data/extra/random8.chk
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f chunky -d 4 data/random4.png output/amigeconv/random4.chk\n"
+../bin/amigeconv -f chunky -d 4 data/random4.png output/amigeconv/random4.chk
+test output/amigeconv/random4.chk data/extra/random4.chk
+
+printf "\033[0;33mCommand:\033[0m amigeconv -f chunky -d 2 data/random2.png output/amigeconv/random2.chk\n"
+../bin/amigeconv -f chunky -d 2 data/random2.png output/amigeconv/random2.chk
+test output/amigeconv/random2.chk data/extra/random2.chk
+
 printf "\033[0;33mCommand:\033[0m amigeconv -f bitplane -d 8 data/random8.png output/amigeconv/random8.raw\n"
 ../bin/amigeconv -f bitplane -d 8 data/random8.png output/amigeconv/random8.raw
 test output/amigeconv/random8.raw data/piccon/random8.raw

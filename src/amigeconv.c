@@ -12,8 +12,8 @@
 #include "formats/sprite.h"
 #include "formats/palette.h"
 
-#define AMIGECONV_VERSION "1.0.8"
-#define AMIGECONV_VERSION_DATE "2024-09-25"
+#define AMIGECONV_VERSION "1.0.9"
+#define AMIGECONV_VERSION_DATE "2024-12-26"
 
 typedef enum {
 	PALETTE_UNKNOWN = 0,
@@ -36,9 +36,10 @@ typedef enum {
 
 static bool write_chunky(
 	const char *outfile,
-	image_t *const image
+	image_t *const image,
+	unsigned int depth
 ) {
-	buffer_t *buffer = chunky_convert(image);
+	buffer_t *buffer = chunky_convert(image, depth);
 	if (!buffer) { return false; }
 
 	const bool error = buffer_write(buffer, outfile);
@@ -318,10 +319,25 @@ int main(int argc, char *argv[]) {
 		goto error;
 	}
 
-	if (format == FORMAT_CHUNKY && !write_chunky(outfile, &image)) {
-		error = true;
-		printf("Error: Could not write output file \"%s\".\n\n", outfile);
-		goto error;
+	if (format == FORMAT_CHUNKY) {
+		if (depth == -1) { depth = 8; }
+		if (depth != 2 && depth != 4 && depth != 8) {
+			error = true;
+			printf("Error: Invalid depth specified.\n\n");
+			goto error;
+		}
+
+		if ((image.bitmap->size * depth % 8) != 0) {
+			error = true;
+			printf("Error: Invalid input file image size.\n\n");
+			goto error;
+		}
+
+		if (!write_chunky(outfile, &image, depth)) {
+			error = true;
+			printf("Error: Could not write output file \"%s\".\n\n", outfile);
+			goto error;
+		}
 	}
 
 	if (format == FORMAT_BITPLANE) {

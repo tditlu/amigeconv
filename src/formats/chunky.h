@@ -3,6 +3,6 @@
 
 #include "../buffer.h"
 
-buffer_t *chunky_convert(image_t *const image);
+buffer_t *chunky_convert(image_t *const image, const unsigned int depth);
 
 #endif /* _FORMATS_CHUNKY_H */
