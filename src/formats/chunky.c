@@ -7,7 +7,7 @@ buffer_t *chunky_convert(image_t *const image, const unsigned int depth) {
 	if (depth != 2 && depth != 4 && depth != 8) { return NULL; }
 	if ((image->bitmap->size * depth % 8) != 0) { return NULL; }
 
-	unsigned int buffer_size = (image->bitmap->size / 8) * depth;
+	unsigned int buffer_size = depth == 8 ? image->bitmap->size : (image->bitmap->size / 8) * depth;
 
 	buffer_t *buffer = buffer_create(buffer_size);
 	if (!buffer) { return NULL; }

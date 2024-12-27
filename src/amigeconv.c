@@ -12,8 +12,8 @@
 #include "formats/sprite.h"
 #include "formats/palette.h"
 
-#define AMIGECONV_VERSION "1.0.9"
-#define AMIGECONV_VERSION_DATE "2024-12-26"
+#define AMIGECONV_VERSION "1.1.0"
+#define AMIGECONV_VERSION_DATE "2024-12-27"
 
 typedef enum {
 	PALETTE_UNKNOWN = 0,
