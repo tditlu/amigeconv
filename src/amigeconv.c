@@ -12,8 +12,8 @@
 #include "formats/sprite.h"
 #include "formats/palette.h"
 
-#define AMIGECONV_VERSION "1.1.0"
-#define AMIGECONV_VERSION_DATE "2024-12-27"
+#define AMIGECONV_VERSION "1.1.1"
+#define AMIGECONV_VERSION_DATE "2025-08-03"
 
 typedef enum {
 	PALETTE_UNKNOWN = 0,
@@ -148,25 +148,22 @@ static void usage() {
 	printf("Amigeconv (Amiga Image Converter) by Todi / Tulou - version %s (%s)\n\n", AMIGECONV_VERSION, AMIGECONV_VERSION_DATE);
 	printf("Usage: amigeconv <options> <input> <output>\n");
 	printf("\n");
-	printf("Available options are:\n");
-	printf(" -f, --format bitplane,chunky,palette,sprite         Desired output file format.\n");
-	printf(" -p, --palette pal8,pal4,pal32,loadrgb4,loadrgb32    Desired palette file format.\n");
-	printf(" -l, --interleaved                                   Data in output file is stored in interleaved format, only valid with bitplane output file format.\n");
-	printf(" -m, --mask [inverted]                               Data in output file is stored as a mask, only valid with bitplane output file format.\n");
-	printf(" -d, --depth 1-8                                     Number of bitplane saved in the output file, only valid with bitplane, sprite or chunky output file format.\n");
-	printf(" -c, --colors 1-256                                  Number of colors saved in the output file, only valid with palette output file format.\n");
-	printf(" -x, --copper                                        Generate copper list, only valid with palette output file format.\n");
-	printf(" -w, --width 16,32,64                                Width, only valid with sprite output file format.\n");
-	printf(" -t, --controlword                                   Write control word, only valid with sprite output file format.\n");
-	printf(" -a, --attached                                      Attach mode sprite, only valid with sprite output file format.\n");
-	printf(" -n, --piccon                                        Use PicCon compatible color conversion for 4 bit palette, only valid with palette output file format.\n");
-	printf("\n");
+    printf("Usage: amigeconv <options> <input> <output>\n");
+    printf("\n");
+    printf("Available options:\n");
+    printf(" -f, --format bitplane,chunky,palette,sprite         Set the desired output file format.\n");
+    printf(" -p, --palette pal8,pal4,pal32,loadrgb4,loadrgb32    Set the desired palette format (only valid with palette output).\n");
+    printf(" -l, --interleaved                                   Store data in interleaved format (only valid with bitplane output).\n");
+    printf(" -m, --mask [inverted]                               Store data as a mask (only valid with bitplane output). Use 'inverted' to invert the mask.\n");
+    printf(" -d, --depth 1-8                                     Number of bitplanes to save in the output file (only valid with bitplane, sprite, or chunky output).\n");
+    printf(" -c, --colors 1-256                                  Number of colors to save in the output file (only valid with palette output).\n");
+    printf(" -x, --copper                                        Generate a copper list (only valid with palette output).\n");
+    printf(" -w, --width 16,32,64                                Set the sprite width (only valid with sprite output).\n");
+    printf(" -t, --controlword                                   Write the control word (only valid with sprite output).\n");
+    printf(" -a, --attached                                      Use attached sprite mode (only valid with sprite output).\n");
+    printf(" -n, --piccon                                        Use PicCon-compatible color conversion for 4-bit palettes (only valid with palette output).\n");
+    printf("\n");
 }
-
-#define OPTIONAL_ARGUMENT_IS_PRESENT \
-    ((optarg == NULL && optind < argc && argv[optind][0] != '-') \
-     ? (bool) (optarg = argv[optind++]) \
-     : (optarg != NULL))
 
 int main(int argc, char *argv[]) {
 	bool interleaved = false, mask = false, mask_inverted = false, copper = false, controlword = false, attached = false, piccon_compatibility = false;
@@ -245,14 +242,11 @@ int main(int argc, char *argv[]) {
 			case 'm':
 				mask = true;
 				mask_inverted = false;
-				if (OPTIONAL_ARGUMENT_IS_PRESENT) {
-					if (!strcmp("inverted", optarg)) {
-						mask_inverted = true;
-					} else {
-						usage();
-						printf("Error: Invalid mask type.\n\n");
-						exit(EXIT_FAILURE);
-					}
+				if (optarg && strcmp(optarg, "inverted") == 0) {
+					mask_inverted = true;
+				} else if (optind < argc - 2 && strcmp(argv[optind], "inverted") == 0) {
+					mask_inverted = true;
+					optind++;
 				}
 				break;
 			case 'd':
@@ -284,25 +278,25 @@ int main(int argc, char *argv[]) {
 
 	if (format == FORMAT_UNKNOWN) {
 		usage();
-		printf("Error: No format specified.\n\n");
+		printf("Error: No format was specified.\n\n");
 		exit(EXIT_FAILURE);
 	}
 
 	if ((argc - optind) == 0) {
 		usage();
-		printf("Error: No input file specified.\n\n");
+		printf("Error: No input file was specified.\n\n");
 		exit(EXIT_FAILURE);
 	}
 
 	if ((argc - optind) == 1) {
 		usage();
-		printf("Error: No output file specified.\n\n");
+		printf("Error: No output file was specified.\n\n");
 		exit(EXIT_FAILURE);
 	}
 
 	if ((argc - optind) > 2) {
 		usage();
-		printf("Error: Too many files specified.\n\n");
+		printf("Error: Too many files were specified.\n\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -315,7 +309,7 @@ int main(int argc, char *argv[]) {
 	const image_error_t image_error = image_load(&image, infile);
 	if (image_error) {
 		error = true;
-		printf("Error: Could not load input file \"%s\". %s\n\n", infile, image_error_text(image_error));
+		printf("Error: Could not load the input file \"%s\". %s\n\n", infile, image_error_text(image_error));
 		goto error;
 	}
 
@@ -323,19 +317,19 @@ int main(int argc, char *argv[]) {
 		if (depth == -1) { depth = 8; }
 		if (depth != 2 && depth != 4 && depth != 8) {
 			error = true;
-			printf("Error: Invalid depth specified.\n\n");
+			printf("Error: Invalid image depth in the input file.\n\n");
 			goto error;
 		}
 
 		if ((image.bitmap->size * depth % 8) != 0) {
 			error = true;
-			printf("Error: Invalid input file image size.\n\n");
+			printf("Error: Invalid image size in the input file.\n\n");
 			goto error;
 		}
 
 		if (!write_chunky(outfile, &image, depth)) {
 			error = true;
-			printf("Error: Could not write output file \"%s\".\n\n", outfile);
+			printf("Error: Could not write the output file \"%s\".\n\n", outfile);
 			goto error;
 		}
 	}
@@ -343,7 +337,7 @@ int main(int argc, char *argv[]) {
 	if (format == FORMAT_BITPLANE) {
 		if (image.width % 8 != 0) {
 			error = true;
-			printf("Error: Invalid input file width.\n\n");
+			printf("Error: Invalid image width in the input file.\n\n");
 			goto error;
 		}
 
@@ -356,16 +350,16 @@ int main(int argc, char *argv[]) {
 		if (depth < 1 || depth > 8) {
 			error = true;
 			if (depth_not_set) {
-				printf("Error: Invalid input file image depth.\n\n");
+				printf("Error: Invalid image depth in the input file.\n\n");
 			} else {
-				printf("Error: Invalid depth specified.\n\n");
+				printf("Error: Invalid depth was specified.\n\n");
 			}
 			goto error;
 		}
 
 		if (!write_bitplane(outfile, &image, depth, interleaved, mask, mask_inverted)) {
 			error = true;
-			printf("Error: Could not write output file \"%s\".\n\n", outfile);
+			printf("Error: Could not write the output file \"%s\".\n\n", outfile);
 			goto error;
 		}
 	}
@@ -373,7 +367,7 @@ int main(int argc, char *argv[]) {
 	if (format == FORMAT_SPRITE) {
 		if (image.width % 8 != 0) {
 			error = true;
-			printf("Error: Invalid input file width.\n\n");
+			printf("Error: Invalid image width in the input file.\n\n");
 			goto error;
 		}
 
@@ -386,9 +380,9 @@ int main(int argc, char *argv[]) {
 		if ((!attached && depth != 2) || (attached && depth != 4)) {
 			error = true;
 			if (depth_not_set) {
-				printf("Error: Invalid input file image depth.\n\n");
+				printf("Error: Invalid image depth in the input file.\n\n");
 			} else {
-				printf("Error: Invalid depth specified.\n\n");
+				printf("Error: Invalid depth was specified.\n\n");
 			}
 			goto error;
 		}
@@ -402,16 +396,16 @@ int main(int argc, char *argv[]) {
 		if (width != 16 && width != 32 && width != 64) {
 			error = true;
 			if (width_not_set) {
-				printf("Error: Invalid input file image width.\n\n");
+				printf("Error: Invalid image width in the input file.\n\n");
 			} else {
-				printf("Error: Invalid width specified.\n\n");
+				printf("Error: Invalid width was specified.\n\n");
 			}
 			goto error;
 		}
 
 		if (!write_sprite(outfile, &image, width, controlword, attached)) {
 			error = true;
-			printf("Error: Could not write output file \"%s\".\n\n", outfile);
+			printf("Error: Could not write the output file \"%s\".\n\n", outfile);
 			goto error;
 		}
 	}
@@ -419,7 +413,7 @@ int main(int argc, char *argv[]) {
 	if (format == FORMAT_PALETTE) {
 		if (palette == PALETTE_UNKNOWN) {
 			error = true;
-			printf("Error: Invalid palette specified.\n\n");
+			printf("Error: Invalid palette was specified.\n\n");
 			goto error;
 		}
 
@@ -432,16 +426,16 @@ int main(int argc, char *argv[]) {
 		if (colors < 1 || colors > 256) {
 			error = true;
 			if (colors_not_set) {
-				printf("Error: Invalid input file image colors.\n\n");
+				printf("Error: Invalid colors in the input file.\n\n");
 			} else {
-				printf("Error: Invalid colors specified.\n\n");
+				printf("Error: Invalid number of colors was specified.\n\n");
 			}
 			goto error;
 		}
 
 		if (!write_palette(outfile, &image, palette, colors, copper, piccon_compatibility)) {
 			error = true;
-			printf("Error: Could not write output file \"%s\".\n\n", outfile);
+			printf("Error: Could not write the output file \"%s\".\n\n", outfile);
 			goto error;
 		}
 	}
