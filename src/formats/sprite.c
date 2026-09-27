@@ -1,12 +1,11 @@
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "../buffer.h"
 #include "../image.h"
 
 buffer_t *sprite_convert(image_t *const image, const unsigned int width, const bool controlword) {
-	if (image->width % 8 != 0) { return NULL; }
 	if (width != 16 && width != 32 && width != 64) { return NULL; }
+	if (image->width % width != 0) { return NULL; }
 
 	// Calculate needed buffer size
 	unsigned int buffer_size = 0;
@@ -28,7 +27,7 @@ buffer_t *sprite_convert(image_t *const image, const unsigned int width, const b
 			for (unsigned int i = 0; i < width; i += 8) {
 				unsigned char c = 0;
 				for (unsigned int j = 0; j < 8; j++) { // Low
-					c += (buffer_get_byte(image->bitmap, (y * image->width) + x + i + j) & 1) << ((8 - 1) - j);
+					c |= (buffer_get_byte(image->bitmap, (y * image->width) + x + i + j) & 1) << ((8 - 1) - j);
 				}
 				buffer_set_byte(buffer, b++, c);
 			}
@@ -36,7 +35,7 @@ buffer_t *sprite_convert(image_t *const image, const unsigned int width, const b
 			for (unsigned int i = 0; i < width; i += 8) {
 				unsigned char c = 0;
 				for (unsigned int j = 0; j < 8; j++) { // High
-					c += ((buffer_get_byte(image->bitmap, (y * image->width) + x + i + j) >> 1) & 1) << ((8 - 1) - j);
+					c |= ((buffer_get_byte(image->bitmap, (y * image->width) + x + i + j) >> 1) & 1) << ((8 - 1) - j);
 				}
 				buffer_set_byte(buffer, b++, c);
 			}
@@ -52,8 +51,8 @@ buffer_t *sprite_convert(image_t *const image, const unsigned int width, const b
 }
 
 buffer_t *sprite_convert_attached(image_t *const image, const unsigned int width, const bool controlword) {
-	if (image->width % 8 != 0) { return NULL; }
 	if (width != 16 && width != 32 && width != 64) { return NULL; }
+	if (image->width % width != 0) { return NULL; }
 
 	// Calculate needed buffer size
 	unsigned int buffer_size = 0;
@@ -75,7 +74,7 @@ buffer_t *sprite_convert_attached(image_t *const image, const unsigned int width
 			for (unsigned int i = 0; i < width; i += 8) {
 				unsigned char c = 0;
 				for (unsigned int j = 0; j < 8; j++) { // Low
-					c += (buffer_get_byte(image->bitmap, (y * image->width) + x + i + j) & 1) << ((8 - 1) - j);
+					c |= (buffer_get_byte(image->bitmap, (y * image->width) + x + i + j) & 1) << ((8 - 1) - j);
 				}
 				buffer_set_byte(buffer, b++, c);
 			}
@@ -83,7 +82,7 @@ buffer_t *sprite_convert_attached(image_t *const image, const unsigned int width
 			for (unsigned int i = 0; i < width; i += 8) {
 				unsigned char c = 0;
 				for (unsigned int j = 0; j < 8; j++) { // High
-					c += ((buffer_get_byte(image->bitmap, (y * image->width) + x + i + j) >> 1) & 1) << ((8 - 1) - j);
+					c |= ((buffer_get_byte(image->bitmap, (y * image->width) + x + i + j) >> 1) & 1) << ((8 - 1) - j);
 				}
 				buffer_set_byte(buffer, b++, c);
 			}
@@ -98,7 +97,7 @@ buffer_t *sprite_convert_attached(image_t *const image, const unsigned int width
 			for (unsigned int i = 0; i < width; i += 8) {
 				unsigned char c = 0;
 				for (unsigned int j = 0; j < 8; j++) { // Low
-					c += ((buffer_get_byte(image->bitmap, (y * image->width) + x + i + j) >> 2) & 1) << ((8 - 1) - j);
+					c |= ((buffer_get_byte(image->bitmap, (y * image->width) + x + i + j) >> 2) & 1) << ((8 - 1) - j);
 				}
 				buffer_set_byte(buffer, b++, c);
 			}
@@ -106,7 +105,7 @@ buffer_t *sprite_convert_attached(image_t *const image, const unsigned int width
 			for (unsigned int i = 0; i < width; i += 8) {
 				unsigned char c = 0;
 				for (unsigned int j = 0; j < 8; j++) { // High
-					c += ((buffer_get_byte(image->bitmap, (y * image->width) + x + i + j) >> 3) & 1) << ((8 - 1) - j);
+					c |= ((buffer_get_byte(image->bitmap, (y * image->width) + x + i + j) >> 3) & 1) << ((8 - 1) - j);
 				}
 				buffer_set_byte(buffer, b++, c);
 			}

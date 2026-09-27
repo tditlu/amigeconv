@@ -16,7 +16,7 @@ buffer_t *bitplane_convert(image_t *const image, const unsigned int depth) {
 			for (unsigned int x = 0; x < image->width; x += 8) {
 				unsigned char c = 0;
 				for (unsigned int k = 0; k < 8; k++) {
-					c += ((buffer_get_byte(image->bitmap, (y * image->width) + x + k) >> j) & 1) << ((8 - 1) - k);
+					c |= ((buffer_get_byte(image->bitmap, (y * image->width) + x + k) >> j) & 1) << ((8 - 1) - k);
 				}
 				buffer_set_byte(buffer, i++, c);
 			}
@@ -38,7 +38,7 @@ buffer_t *bitplane_convert_mask(image_t *const image, const unsigned int depth, 
 		for (unsigned int x = 0; x < image->width; x += 8) {
 			unsigned char c = 0;
 			for (unsigned int k = 0; k < 8; k++) {
-				c += (buffer_get_byte(image->bitmap, (y * image->width) + x + k) > 0 ? 1 : 0) << ((8 - 1) - k);
+				c |= (buffer_get_byte(image->bitmap, (y * image->width) + x + k) > 0 ? 1 : 0) << ((8 - 1) - k);
 			}
 			if (inverted) { c = ~c; }
 			buffer_set_byte(buffer, i++, c);
@@ -49,7 +49,7 @@ buffer_t *bitplane_convert_mask(image_t *const image, const unsigned int depth, 
 }
 
 buffer_t *bitplane_convert_interleaved(image_t *const image, const unsigned int depth) {
-	if (image->width % 8 != 0) { return NULL; }
+	if (image->width % 8 != 0 || depth < 1 || depth > 8) { return NULL; }
 
 	unsigned int buffer_size = image->height * depth * ((image->width + (8 - 1)) >> 3);
 	buffer_t *buffer = buffer_create(buffer_size);
@@ -61,7 +61,7 @@ buffer_t *bitplane_convert_interleaved(image_t *const image, const unsigned int 
 			for (unsigned int x = 0; x < image->width; x += 8) {
 				unsigned char c = 0;
 				for (unsigned int k = 0; k < 8; k++) {
-					c += ((buffer_get_byte(image->bitmap, (y * image->width) + x + k) >> j) & 1) << ((8 - 1) - k);
+					c |= ((buffer_get_byte(image->bitmap, (y * image->width) + x + k) >> j) & 1) << ((8 - 1) - k);
 				}
 				buffer_set_byte(buffer, i++, c);
 			}
@@ -72,7 +72,7 @@ buffer_t *bitplane_convert_interleaved(image_t *const image, const unsigned int 
 }
 
 buffer_t *bitplane_convert_mask_interleaved(image_t *const image, const unsigned int depth, const bool inverted) {
-	if (image->width % 8 != 0) { return NULL; }
+	if (image->width % 8 != 0 || depth < 1 || depth > 8) { return NULL; }
 
 	unsigned int buffer_size = image->height * depth * ((image->width + (8 - 1)) >> 3);
 	buffer_t *buffer = buffer_create(buffer_size);
@@ -84,7 +84,7 @@ buffer_t *bitplane_convert_mask_interleaved(image_t *const image, const unsigned
 			for (unsigned int x = 0; x < image->width; x += 8) {
 				unsigned char c = 0;
 				for (unsigned int k = 0; k < 8; k++) {
-					c += (buffer_get_byte(image->bitmap, (y * image->width) + x + k) > 0 ? 1 : 0) << ((8 - 1) - k);
+					c |= (buffer_get_byte(image->bitmap, (y * image->width) + x + k) > 0 ? 1 : 0) << ((8 - 1) - k);
 				}
 				if (inverted) { c = ~c; }
 				buffer_set_byte(buffer, i++, c);

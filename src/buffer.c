@@ -6,6 +6,8 @@
 #include "buffer.h"
 
 buffer_t *buffer_create(unsigned int size) {
+	if (size == 0) { return NULL; }
+
 	buffer_t *buffer = malloc(sizeof(buffer_t));
 	if (!buffer) { return NULL; }
 
@@ -21,7 +23,7 @@ buffer_t *buffer_create(unsigned int size) {
 }
 
 bool buffer_clear(buffer_t *const buffer) {
-	if (buffer->data != NULL && buffer->size > 0) {
+	if (buffer != NULL && buffer->data != NULL && buffer->size > 0) {
 		memset(buffer->data, 0, buffer->size);
 		return true;
 	}
@@ -29,30 +31,38 @@ bool buffer_clear(buffer_t *const buffer) {
 }
 
 unsigned char buffer_get_byte(buffer_t *const buffer, unsigned int position) {
-	if (buffer->data != NULL && position < buffer->size) {
+	if (buffer != NULL && buffer->data != NULL && position < buffer->size) {
 		return buffer->data[position];
 	}
 	return 0;
 }
 
 void buffer_set_byte(buffer_t *const buffer, unsigned int position, unsigned char value) {
-	if (buffer->data != NULL && position < buffer->size) {
+	if (buffer != NULL && buffer->data != NULL && position < buffer->size) {
 		buffer->data[position] = value;
 	}
 }
 
 void buffer_free(buffer_t *const buffer) {
-	if (buffer->data != NULL) { free(buffer->data); }
+	if (!buffer) { return; }
+
+	free(buffer->data);
 	free(buffer);
 }
 
 bool buffer_write(buffer_t *const buffer, const char *outfile) {
+	if (!buffer || !buffer->data || !outfile) { return false; }
+
 	FILE *f = fopen(outfile, "wb");
 	if (!f) { return false; }
 
-	fwrite(buffer->data, sizeof(unsigned char), buffer->size, f);
-	fclose(f);
+	size_t written = fwrite(buffer->data, sizeof(unsigned char), buffer->size, f);
+	bool success = written == buffer->size;
 
-	return true;
+	if (fclose(f) != 0) {
+		success = false;
+	}
+
+	return success;
 }
 

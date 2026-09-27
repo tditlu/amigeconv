@@ -6,6 +6,13 @@
 #include "lodepng.h"
 
 image_error_t image_load(image_t *const image, const char *infile) {
+	image->bitmap = NULL;
+	image->palette = NULL;
+	image->width = 0;
+	image->height = 0;
+	image->depth = 0;
+	image->colors = 0;
+
 	image_error_t error = IMAGE_ERROR_NO_ERROR;
 
 	unsigned char *png = NULL;
@@ -54,21 +61,13 @@ image_error_t image_load(image_t *const image, const char *infile) {
 	}
 	image->palette = palette;
 
-	unsigned int p = 1, q = 0, r = 0, a = 256, s = 0; // bitdepth == 8
-	if (bitdepth == 4) {
-		p = 2; q = 4; r = 4; a = 16; s = 1;
-	} else if (bitdepth == 2) {
-		p = 4; q = 6; r = 2; a = 4; s = 2;
-	} else if (bitdepth == 1) {
-		p = 8; q = 7; r = 1; a = 2; s = 3;
-	}
-
 	for (unsigned int y = 0; y < height; y++) {
-		for (unsigned int x = 0; x < width >> s; x++) {
-			unsigned int c = png_image[(y * (width >> s)) + x];
-			for (unsigned int i = 0, j = q; i < p; i++, j -= r) {
-				buffer_set_byte(image->bitmap, (y * width) + (x << s) + i, (c >> j) & (a - 1));
-			}
+		for (unsigned int x = 0; x < width; x++) {
+			unsigned int p = (y * width) + x;
+			unsigned int b = p * bitdepth;
+			unsigned int i = b >> 3;
+			unsigned int s = 8 - bitdepth - (b & 7); // bitdepth == 1, 2, 4 or 8
+			buffer_set_byte(image->bitmap, p, (png_image[i] >> s) & ((1 << bitdepth) - 1));
 		}
 	}
 
@@ -76,11 +75,11 @@ image_error_t image_load(image_t *const image, const char *infile) {
 	unsigned int i = png_state.info_png.color.palettesize;
 	while (i >>= 1) { depth++; }
 
-	const unsigned int palette_size = png_state.info_png.color.palettesize;
+	const unsigned int palette_size = colortype == LCT_GREY ? 1 << bitdepth : png_state.info_png.color.palettesize;
 	if (colortype == LCT_GREY) {
 		for (unsigned int i = 0; i < palette_size; i++) {
 			for (unsigned int j = 0; j < 3; j++) {
-				buffer_set_byte(image->palette, (i * 4) + j, (i / (palette_size - 1)) * 255);
+				buffer_set_byte(image->palette, (i * 4) + j, (i * 255) / (palette_size - 1));
 			}
 			buffer_set_byte(image->palette, (i * 4) + 3, 255);
 		}
@@ -101,6 +100,13 @@ error:
 	free(png);
 	lodepng_state_cleanup(&png_state);
 	free(png_image);
+
+	if (error != IMAGE_ERROR_NO_ERROR) {
+		buffer_free(image->bitmap);
+		buffer_free(image->palette);
+		image->bitmap = NULL;
+		image->palette = NULL;
+	}
 
 	return error;
 }

@@ -12,8 +12,8 @@
 #include "formats/sprite.h"
 #include "formats/palette.h"
 
-#define AMIGECONV_VERSION "1.1.1"
-#define AMIGECONV_VERSION_DATE "2025-08-03"
+#define AMIGECONV_VERSION "1.1.2"
+#define AMIGECONV_VERSION_DATE "2026-09-27"
 
 typedef enum {
 	PALETTE_UNKNOWN = 0,
@@ -42,10 +42,10 @@ static bool write_chunky(
 	buffer_t *buffer = chunky_convert(image, depth);
 	if (!buffer) { return false; }
 
-	const bool error = buffer_write(buffer, outfile);
+	const bool success = buffer_write(buffer, outfile);
 	buffer_free(buffer);
 
-	return error;
+	return success;
 }
 
 static bool write_bitplane(
@@ -72,10 +72,10 @@ static bool write_bitplane(
 	}
 	if (!buffer) { return false; }
 
-	const bool error = buffer_write(buffer, outfile);
+	const bool success = buffer_write(buffer, outfile);
 	buffer_free(buffer);
 
-	return error;
+	return success;
 }
 
 static bool write_sprite(
@@ -93,10 +93,10 @@ static bool write_sprite(
 	}
 	if (!buffer) { return false; }
 
-	const bool error = buffer_write(buffer, outfile);
+	const bool success = buffer_write(buffer, outfile);
 	buffer_free(buffer);
 
-	return error;
+	return success;
 }
 
 static bool write_palette(
@@ -138,18 +138,16 @@ static bool write_palette(
 
 	if (!buffer) { return false; }
 
-	const bool error = buffer_write(buffer, outfile);
+	const bool success = buffer_write(buffer, outfile);
 	buffer_free(buffer);
 
-	return error;
+	return success;
 }
 
 static void usage() {
 	printf("Amigeconv (Amiga Image Converter) by Todi / Tulou - version %s (%s)\n\n", AMIGECONV_VERSION, AMIGECONV_VERSION_DATE);
 	printf("Usage: amigeconv <options> <input> <output>\n");
 	printf("\n");
-    printf("Usage: amigeconv <options> <input> <output>\n");
-    printf("\n");
     printf("Available options:\n");
     printf(" -f, --format bitplane,chunky,palette,sprite         Set the desired output file format.\n");
     printf(" -p, --palette pal8,pal4,pal32,loadrgb4,loadrgb32    Set the desired palette format (only valid with palette output).\n");
@@ -303,7 +301,7 @@ int main(int argc, char *argv[]) {
 	const char *infile = argv[optind++];
 	const char *outfile = argv[optind++];
 
-	image_t image;
+	image_t image = {0};
 	bool error = false;
 
 	const image_error_t image_error = image_load(&image, infile);
@@ -400,6 +398,12 @@ int main(int argc, char *argv[]) {
 			} else {
 				printf("Error: Invalid width was specified.\n\n");
 			}
+			goto error;
+		}
+
+		if (image.width % width != 0) {
+			error = true;
+			printf("Error: Image width must be divisible by sprite width.\n\n");
 			goto error;
 		}
 

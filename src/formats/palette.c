@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <math.h>
 
 #include "../buffer.h"
 #include "../image.h"
@@ -25,14 +24,14 @@ buffer_t *palette_convert_pal4(image_t *const image, const unsigned int colors, 
 			b >>= 4;
 		} else {
 			// Correct conversion
-			r = round((float)r / 17.0f);
-			g = round((float)g / 17.0f);
-			b = round((float)b / 17.0f);
+			r = (r + 8) / 17;
+			g = (g + 8) / 17;
+			b = (b + 8) / 17;
 		}
 
 
 		buffer_set_byte(buffer, j++, r);
-		buffer_set_byte(buffer, j++, (g << 4) + b);
+		buffer_set_byte(buffer, j++, (g << 4) | b);
 	}
 
 	return buffer;
@@ -58,9 +57,9 @@ buffer_t *palette_convert_pal4_copper(image_t *const image, const unsigned int c
 			b >>= 4;
 		} else {
 			// Correct conversion
-			r = round((float)r / 17.0f);
-			g = round((float)g / 17.0f);
-			b = round((float)b / 17.0f);
+			r = (r + 8) / 17;
+			g = (g + 8) / 17;
+			b = (b + 8) / 17;
 		}
 
 		buffer_set_byte(buffer, j++, (reg >> 8) & 255);
@@ -107,6 +106,7 @@ buffer_t *palette_convert_pal8_copper(image_t *const image, const unsigned int c
 		}
 	}
 	buffer_t *buffer = buffer_create(buffer_size);
+	if (!buffer) { return NULL; }
 
 	unsigned int j = 0;
 	for (unsigned int i = 0; i < colors; i += 32) {

@@ -2,7 +2,7 @@ TARGET = amigeconv
 
 CC     = gcc
 CFLAGS = -Wall -Werror -O3
-LIBS   = -lm
+LIBS   =
 
 SRCDIR = src
 OBJDIR = obj
